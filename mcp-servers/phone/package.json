@@ -1,0 +1,13 @@
+{
+  "name": "phone-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server wrapping the Android phone API over Tailscale",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}

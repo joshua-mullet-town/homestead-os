@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>MaffDoku</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1d2021">
+<link rel="manifest" href="/maffdoku/manifest.json">
+<style>
+  :root {
+    --bg: #1d2021;
+    --bg1: #282828;
+    --bg2: #3c3836;
+    --bg3: #504945;
+    --fg: #ebdbb2;
+    --fg-dim: #a89984;
+    --yellow: #fabd2f;
+    --green: #b8bb26;
+    --red: #fb4934;
+    --blue: #83a598;
+    --orange: #fe8019;
+    --purple: #d3869b;
+    --aqua: #8ec07c;
+    --cell-size: min(16vw, 80px);
+    --clue-size: min(10vw, 48px);
+    --gap: 3px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 8px;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--yellow);
+    margin-bottom: 4px;
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
+    color: var(--fg-dim);
+    margin-bottom: 12px;
+  }
+
+  /* Top bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 400px;
+    justify-content: space-between;
+  }
+
+  .timer {
+    font-size: 1.2rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg-dim);
+    min-width: 60px;
+  }
+
+  .difficulty-btns {
+    display: flex;
+    gap: 4px;
+  }
+
+  .diff-btn {
+    background: var(--bg2);
+    color: var(--fg-dim);
+    border: 1px solid var(--bg3);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .diff-btn.active {
+    background: var(--yellow);
+    color: var(--bg);
+    border-color: var(--yellow);
+    font-weight: 600;
+  }
+
+  /* Grid area */
+  .grid-container {
+    display: grid;
+    grid-template-columns: var(--clue-size) repeat(3, var(--cell-size)) var(--clue-size);
+    grid-template-rows: var(--clue-size) repeat(3, var(--cell-size)) var(--clue-size);
+    gap: var(--gap);
+    margin-bottom: 20px;
+  }
+
+  .clue {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--fg-dim);
+    border-radius: 4px;
+  }
+
+  .clue.sum { color: var(--blue); }
+  .clue.product { color: var(--orange); }
+  .clue.hidden { visibility: hidden; }
+
+  .corner { /* empty corners */ }
+
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg2);
+    border: 2px solid var(--bg3);
+    border-radius: 8px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.12s;
+    color: var(--fg);
+  }
+
+  .cell.selected {
+    border-color: var(--yellow);
+    background: var(--bg3);
+    box-shadow: 0 0 12px rgba(250, 189, 47, 0.3);
+  }
+
+  .cell.given {
+    color: var(--fg-dim);
+    cursor: default;
+  }
+
+  .cell.error {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .cell.correct-anim {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  /* Number pad */
+  .numpad {
+    display: grid;
+<<<<<<< HEAD
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    max-width: 300px;
+=======
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    max-width: 400px;
+>>>>>>> main
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .num-btn {
+<<<<<<< HEAD
+    position: relative;
+=======
+>>>>>>> main
+    background: var(--bg2);
+    color: var(--fg);
+    border: 1px solid var(--bg3);
+    border-radius: 10px;
+<<<<<<< HEAD
+    padding: 14px 0;
+    font-size: 1.4rem;
+=======
+    padding: 12px 0;
+    font-size: 1.3rem;
+>>>>>>> main
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .num-btn:active {
+    background: var(--bg3);
+    transform: scale(0.95);
+  }
+
+<<<<<<< HEAD
+  .num-btn.duplicate::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+  }
+
+  .num-btn.clear-btn {
+    grid-column: 1 / -1;
+    background: var(--bg1);
+    color: var(--red);
+    font-size: 1rem;
+    padding: 10px 0;
+  }
+
+  .cell.duplicate {
+    border-color: var(--red);
+    background: rgba(251, 73, 52, 0.15);
+=======
+  .num-btn.used {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .num-btn.clear-btn {
+    background: var(--bg1);
+    color: var(--red);
+    font-size: 1rem;
+>>>>>>> main
+  }
+
+  /* Action buttons */
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .action-btn {
+    background: var(--bg2);
+    color: var(--fg);
+    border: 1px solid var(--bg3);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .action-btn:active {
+    background: var(--bg3);
+    transform: scale(0.97);
+  }
+
+  .action-btn.check {
+    background: var(--green);
+    color: var(--bg);
+    border-color: var(--green);
+    font-weight: 600;
+  }
+
+  .action-btn.new-game {
+    background: var(--yellow);
+    color: var(--bg);
+    border-color: var(--yellow);
+    font-weight: 600;
+  }
+
+  /* Win overlay */
+  .win-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .win-overlay.show {
+    display: flex;
+  }
+
+  .win-text {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  .win-time {
+    font-size: 1.2rem;
+    color: var(--fg-dim);
+  }
+
+  /* How to play */
+  .help-toggle {
+    color: var(--fg-dim);
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-bottom: 8px;
+    text-decoration: underline;
+  }
+
+  .help-text {
+    display: none;
+    font-size: 0.75rem;
+    color: var(--fg-dim);
+    max-width: 400px;
+    line-height: 1.4;
+    text-align: center;
+    padding: 8px;
+    background: var(--bg1);
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .help-text.show { display: block; }
+</style>
+</head>
+<body>
+
+<h1>MAFFDOKU</h1>
+<p class="subtitle">Place 1-9, match the sums & products</p>
+
+<div class="top-bar">
+  <div class="timer" id="timer">0:00</div>
+  <div class="difficulty-btns">
+    <button class="diff-btn active" data-diff="easy">Easy</button>
+    <button class="diff-btn" data-diff="medium">Med</button>
+    <button class="diff-btn" data-diff="hard">Hard</button>
+  </div>
+</div>
+
+<div class="grid-container" id="grid"></div>
+
+<div class="numpad" id="numpad"></div>
+
+<div class="actions">
+  <button class="action-btn check" id="checkBtn">Check</button>
+  <button class="action-btn new-game" id="newBtn">New Puzzle</button>
+</div>
+
+<div class="help-toggle" id="helpToggle">How to play</div>
+<div class="help-text" id="helpText">
+  Fill the 3x3 grid with digits 1-9 (each used exactly once).<br><br>
+  <span style="color:var(--blue)">Blue numbers</span> = SUM of that row/column (top & left edges).<br>
+  <span style="color:var(--orange)">Orange numbers</span> = PRODUCT of that row/column (right & bottom edges).<br><br>
+  Use the clues to deduce which number goes where!
+</div>
+
+<div class="win-overlay" id="winOverlay">
+  <div class="win-text">Solved!</div>
+  <div class="win-time" id="winTime"></div>
+  <button class="action-btn new-game" id="winNewBtn">New Puzzle</button>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // --- Puzzle Generator ---
+  // Uses backtracking solver for fast unique-solution verification
+
+  function computeClues(grid) {
+    const clues = { rowSum: [], rowProd: [], colSum: [], colProd: [] };
+    for (let r = 0; r < 3; r++) {
+      clues.rowSum[r] = grid[r][0] + grid[r][1] + grid[r][2];
+      clues.rowProd[r] = grid[r][0] * grid[r][1] * grid[r][2];
+    }
+    for (let c = 0; c < 3; c++) {
+      clues.colSum[c] = grid[0][c] + grid[1][c] + grid[2][c];
+      clues.colProd[c] = grid[0][c] * grid[1][c] * grid[2][c];
+    }
+    return clues;
+  }
+
+  function fullMask() {
+    return {
+      rowSum: [true,true,true], rowProd: [true,true,true],
+      colSum: [true,true,true], colProd: [true,true,true]
+    };
+  }
+
+  // Backtracking solver — counts solutions up to `limit`
+  // Fills cells left-to-right, top-to-bottom, pruning with constraints
+  function countSolutions(clues, mask, limit) {
+    const grid = [[0,0,0],[0,0,0],[0,0,0]];
+    const used = new Set();
+    let count = 0;
+
+    function isValid(r, c) {
+      const v = grid[r][c];
+      // Check row completion (when c === 2, all 3 filled)
+      if (c === 2) {
+        const s = grid[r][0] + grid[r][1] + grid[r][2];
+        const p = grid[r][0] * grid[r][1] * grid[r][2];
+        if (mask.rowSum[r] && s !== clues.rowSum[r]) return false;
+        if (mask.rowProd[r] && p !== clues.rowProd[r]) return false;
+      }
+      // Partial row check: if sum already too high
+      if (c < 2 && mask.rowSum[r]) {
+        let partialSum = 0;
+        for (let cc = 0; cc <= c; cc++) partialSum += grid[r][cc];
+        if (partialSum >= clues.rowSum[r]) return false; // remaining cells need at least 1 each
+      }
+      // Check column completion (when r === 2, all 3 filled)
+      if (r === 2) {
+        const s = grid[0][c] + grid[1][c] + grid[2][c];
+        const p = grid[0][c] * grid[1][c] * grid[2][c];
+        if (mask.colSum[c] && s !== clues.colSum[c]) return false;
+        if (mask.colProd[c] && p !== clues.colProd[c]) return false;
+      }
+      return true;
+    }
+
+    function solve(pos) {
+      if (count >= limit) return;
+      if (pos === 9) { count++; return; }
+      const r = Math.floor(pos / 3);
+      const c = pos % 3;
+      for (let n = 1; n <= 9; n++) {
+        if (used.has(n)) continue;
+        grid[r][c] = n;
+        used.add(n);
+        if (isValid(r, c)) solve(pos + 1);
+        used.delete(n);
+        grid[r][c] = 0;
+        if (count >= limit) return;
+      }
+    }
+
+    solve(0);
+    return count;
+  }
+
+  // Generate a random valid grid
+  function randomGrid() {
+    const grid = [[0,0,0],[0,0,0],[0,0,0]];
+    const used = new Set();
+    const nums = [1,2,3,4,5,6,7,8,9];
+    // Shuffle for randomness
+    for (let i = nums.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+
+    function fill(pos) {
+      if (pos === 9) return true;
+      const r = Math.floor(pos / 3);
+      const c = pos % 3;
+      // Try numbers in shuffled order
+      const order = [...nums].filter(n => !used.has(n));
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      for (const n of order) {
+        grid[r][c] = n;
+        used.add(n);
+        if (fill(pos + 1)) return true;
+        used.delete(n);
+        grid[r][c] = 0;
+      }
+      return false;
+    }
+
+    fill(0);
+    return grid;
+  }
+
+  function generatePuzzle(difficulty) {
+    const grid = randomGrid();
+    const clues = computeClues(grid);
+
+    let mask;
+    if (difficulty === 'easy') {
+      mask = fullMask();
+    } else {
+      mask = fullMask();
+      const targetRemove = difficulty === 'medium' ? 4 : 8;
+      const allClueKeys = [];
+      for (let r = 0; r < 3; r++) {
+        allClueKeys.push({ type: 'rowSum', idx: r });
+        allClueKeys.push({ type: 'rowProd', idx: r });
+      }
+      for (let c = 0; c < 3; c++) {
+        allClueKeys.push({ type: 'colSum', idx: c });
+        allClueKeys.push({ type: 'colProd', idx: c });
+      }
+      // Shuffle
+      for (let i = allClueKeys.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allClueKeys[i], allClueKeys[j]] = [allClueKeys[j], allClueKeys[i]];
+      }
+
+      let removed = 0;
+      for (const key of allClueKeys) {
+        if (removed >= targetRemove) break;
+        mask[key.type][key.idx] = false;
+        const solutions = countSolutions(clues, mask, 2);
+        if (solutions === 1) {
+          removed++;
+        } else {
+          mask[key.type][key.idx] = true;
+        }
+      }
+    }
+
+    return { grid, clues, mask };
+  }
+
+  // --- Game State ---
+  let puzzle = null;
+  let playerGrid = [[0,0,0],[0,0,0],[0,0,0]];
+  let selectedCell = null; // {r, c}
+  let timerSeconds = 0;
+  let timerInterval = null;
+  let difficulty = 'easy';
+  let solved = false;
+
+  // --- DOM ---
+  const gridEl = document.getElementById('grid');
+  const numpadEl = document.getElementById('numpad');
+  const timerEl = document.getElementById('timer');
+  const checkBtn = document.getElementById('checkBtn');
+  const newBtn = document.getElementById('newBtn');
+  const winOverlay = document.getElementById('winOverlay');
+  const winTime = document.getElementById('winTime');
+  const winNewBtn = document.getElementById('winNewBtn');
+  const helpToggle = document.getElementById('helpToggle');
+  const helpText = document.getElementById('helpText');
+
+  // --- Render Grid ---
+  function renderGrid() {
+    gridEl.innerHTML = '';
+    const { clues, mask } = puzzle;
+
+    // Row 0: corner, colSum[0], colSum[1], colSum[2], corner
+    addCorner();
+    for (let c = 0; c < 3; c++) {
+      const el = document.createElement('div');
+      el.className = 'clue sum' + (mask.colSum[c] ? '' : ' hidden');
+      el.textContent = clues.colSum[c];
+      gridEl.appendChild(el);
+    }
+    addCorner();
+
+    // Rows 1-3: rowSum, cell, cell, cell, rowProd
+<<<<<<< HEAD
+    const dupes = getDuplicateNums();
+=======
+>>>>>>> main
+    for (let r = 0; r < 3; r++) {
+      // Left: rowSum
+      const sumEl = document.createElement('div');
+      sumEl.className = 'clue sum' + (mask.rowSum[r] ? '' : ' hidden');
+      sumEl.textContent = clues.rowSum[r];
+      gridEl.appendChild(sumEl);
+
+      // Cells
+      for (let c = 0; c < 3; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        const val = playerGrid[r][c];
+<<<<<<< HEAD
+        if (val > 0) {
+          cell.textContent = val;
+          if (dupes.has(val)) cell.classList.add('duplicate');
+        }
+=======
+        if (val > 0) cell.textContent = val;
+>>>>>>> main
+        if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+          cell.classList.add('selected');
+        }
+        cell.addEventListener('click', () => selectCell(r, c));
+        gridEl.appendChild(cell);
+      }
+
+      // Right: rowProd
+      const prodEl = document.createElement('div');
+      prodEl.className = 'clue product' + (mask.rowProd[r] ? '' : ' hidden');
+      prodEl.textContent = clues.rowProd[r];
+      gridEl.appendChild(prodEl);
+    }
+
+    // Bottom row: corner, colProd[0], colProd[1], colProd[2], corner
+    addCorner();
+    for (let c = 0; c < 3; c++) {
+      const el = document.createElement('div');
+      el.className = 'clue product' + (mask.colProd[c] ? '' : ' hidden');
+      el.textContent = clues.colProd[c];
+      gridEl.appendChild(el);
+    }
+    addCorner();
+  }
+
+  function addCorner() {
+    const el = document.createElement('div');
+    el.className = 'corner';
+    gridEl.appendChild(el);
+  }
+
+<<<<<<< HEAD
+  // Find which numbers appear more than once on the board
+  function getDuplicateNums() {
+    const count = {};
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const v = playerGrid[r][c];
+        if (v > 0) count[v] = (count[v] || 0) + 1;
+      }
+    }
+    const dupes = new Set();
+    for (const [n, cnt] of Object.entries(count)) {
+      if (cnt > 1) dupes.add(parseInt(n));
+    }
+    return dupes;
+  }
+
+  function renderNumpad() {
+    numpadEl.innerHTML = '';
+    const dupes = getDuplicateNums();
+
+    for (let n = 1; n <= 9; n++) {
+      const btn = document.createElement('button');
+      btn.className = 'num-btn' + (dupes.has(n) ? ' duplicate' : '');
+=======
+  function renderNumpad() {
+    numpadEl.innerHTML = '';
+    const usedNums = new Set();
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (playerGrid[r][c] > 0) usedNums.add(playerGrid[r][c]);
+      }
+    }
+
+    for (let n = 1; n <= 9; n++) {
+      const btn = document.createElement('button');
+      btn.className = 'num-btn' + (usedNums.has(n) ? ' used' : '');
+>>>>>>> main
+      btn.textContent = n;
+      btn.addEventListener('click', () => placeNumber(n));
+      numpadEl.appendChild(btn);
+    }
+    // Clear button
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'num-btn clear-btn';
+    clearBtn.textContent = 'Clear';
+    clearBtn.addEventListener('click', clearCell);
+    numpadEl.appendChild(clearBtn);
+  }
+
+  // --- Interactions ---
+  function selectCell(r, c) {
+    if (solved) return;
+    selectedCell = { r, c };
+    renderGrid();
+  }
+
+  function placeNumber(n) {
+    if (!selectedCell || solved) return;
+    const { r, c } = selectedCell;
+<<<<<<< HEAD
+    playerGrid[r][c] = n;
+=======
+    // Check if number already used elsewhere
+    for (let rr = 0; rr < 3; rr++) {
+      for (let cc = 0; cc < 3; cc++) {
+        if (playerGrid[rr][cc] === n && !(rr === r && cc === c)) {
+          return; // Already used
+        }
+      }
+    }
+    playerGrid[r][c] = n;
+    // Auto-advance to next empty cell
+    advanceSelection();
+>>>>>>> main
+    renderGrid();
+    renderNumpad();
+  }
+
+  function clearCell() {
+    if (!selectedCell || solved) return;
+    const { r, c } = selectedCell;
+    playerGrid[r][c] = 0;
+    renderGrid();
+    renderNumpad();
+  }
+
+<<<<<<< HEAD
+=======
+  function advanceSelection() {
+    if (!selectedCell) return;
+    let { r, c } = selectedCell;
+    // Move to next cell
+    for (let i = 1; i <= 9; i++) {
+      c++;
+      if (c > 2) { c = 0; r++; }
+      if (r > 2) { r = 0; }
+      if (playerGrid[r][c] === 0) {
+        selectedCell = { r, c };
+        return;
+      }
+    }
+  }
+
+>>>>>>> main
+  // --- Check ---
+  function checkSolution() {
+    if (solved) return;
+    const { grid } = puzzle;
+    let allCorrect = true;
+    let allFilled = true;
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (playerGrid[r][c] === 0) {
+          allFilled = false;
+          allCorrect = false;
+        } else if (playerGrid[r][c] !== grid[r][c]) {
+          allCorrect = false;
+        }
+      }
+    }
+
+    if (!allFilled) {
+      // Highlight errors for filled cells
+      flashErrors();
+      return;
+    }
+
+    if (allCorrect) {
+      solved = true;
+      stopTimer();
+      showWin();
+    } else {
+      flashErrors();
+    }
+  }
+
+  function flashErrors() {
+    const cells = gridEl.querySelectorAll('.cell');
+    cells.forEach(cell => {
+      const r = parseInt(cell.dataset.r);
+      const c = parseInt(cell.dataset.c);
+      if (playerGrid[r][c] > 0 && playerGrid[r][c] !== puzzle.grid[r][c]) {
+        cell.classList.add('error');
+        setTimeout(() => cell.classList.remove('error'), 1200);
+      } else if (playerGrid[r][c] > 0 && playerGrid[r][c] === puzzle.grid[r][c]) {
+        cell.classList.add('correct-anim');
+        setTimeout(() => cell.classList.remove('correct-anim'), 1200);
+      }
+    });
+  }
+
+  function showWin() {
+    winTime.textContent = `Time: ${formatTime(timerSeconds)}`;
+    winOverlay.classList.add('show');
+  }
+
+  // --- Timer ---
+  function startTimer() {
+    timerSeconds = 0;
+    timerEl.textContent = '0:00';
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timerSeconds++;
+      timerEl.textContent = formatTime(timerSeconds);
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+  }
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  // --- New Game ---
+  function newGame() {
+    solved = false;
+    winOverlay.classList.remove('show');
+    selectedCell = { r: 0, c: 0 };
+    playerGrid = [[0,0,0],[0,0,0],[0,0,0]];
+    puzzle = generatePuzzle(difficulty);
+    renderGrid();
+    renderNumpad();
+    startTimer();
+  }
+
+  // --- Difficulty ---
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      difficulty = btn.dataset.diff;
+      newGame();
+    });
+  });
+
+  // --- Event listeners ---
+  checkBtn.addEventListener('click', checkSolution);
+  newBtn.addEventListener('click', newGame);
+  winNewBtn.addEventListener('click', newGame);
+  helpToggle.addEventListener('click', () => {
+    helpText.classList.toggle('show');
+  });
+
+  // Keyboard support
+  document.addEventListener('keydown', (e) => {
+    if (solved) return;
+    const key = parseInt(e.key);
+    if (key >= 1 && key <= 9) {
+      placeNumber(key);
+      return;
+    }
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      clearCell();
+      return;
+    }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      if (!selectedCell) { selectedCell = {r:0,c:0}; renderGrid(); return; }
+      let {r, c} = selectedCell;
+      if (e.key === 'ArrowRight') c = (c + 1) % 3;
+      if (e.key === 'ArrowLeft') c = (c + 2) % 3;
+      if (e.key === 'ArrowDown') r = (r + 1) % 3;
+      if (e.key === 'ArrowUp') r = (r + 2) % 3;
+      selectedCell = {r, c};
+      renderGrid();
+    }
+  });
+
+  // --- Init ---
+<<<<<<< HEAD
+=======
+  // Precompute perms in background to avoid lag on first play
+  // Actually, 362880 perms is fine to compute on the fly. Let's just start.
+>>>>>>> main
+  newGame();
+
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/maffdoku/sw.js').catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>

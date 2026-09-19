@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Presenter</title>
+  <link rel="stylesheet" href="/presenter/style.css?v=1782772338164">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <style>
+    /* Embedded mode (APK, mobile): hide titlebar chrome but surface the CPU pill
+       as a fixed top-right badge so host health stays visible on mobile. */
+    body.embedded #titlebar {
+      display: block;
+      height: 0;
+      padding: 0;
+      border: none;
+      background: transparent;
+      overflow: visible;
+    }
+    body.embedded #titlebar-drag,
+    body.embedded #titlebar-controls > label,
+    body.embedded #ctrl-reading-mode,
+    body.embedded #ctrl-fullscreen,
+    body.embedded #btn-minimize { display: none !important; }
+    /* Electron + embedded: Josh still needs to drag the window.
+       Thin invisible drag strip at the top so the mobile UI underneath
+       remains tap-able. Everything inside embedded-topbar/sidebar-toggle/
+       CPU-pill is clickable via app-region: no-drag (already set on
+       individual controls in style.css). */
+    body.embedded.electron #titlebar-drag {
+      display: block !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 24px;
+      z-index: 150;
+      background: transparent;
+      -webkit-app-region: drag;
+      pointer-events: auto;
+    }
+    body.embedded.electron #titlebar-drag #titlebar-text,
+    body.embedded.electron #titlebar-drag #queue-count,
+    body.embedded.electron #titlebar-drag #btn-hood { display: none !important; }
+    /* Electron min button stays visible so Josh can minimize. */
+    body.embedded.electron #btn-minimize {
+      display: block !important;
+      position: fixed;
+      top: 4px;
+      right: 6px;
+      z-index: 200;
+      -webkit-app-region: no-drag;
+    }
+    /* Electron uses the ⛶ fullscreen toggle — surface it too. */
+    body.embedded.electron #ctrl-fullscreen {
+      display: inline-flex !important;
+      -webkit-app-region: no-drag;
+    }
+    body.embedded #titlebar-controls {
+      position: fixed;
+      top: 12px;
+      right: 56px;
+      height: auto;
+      padding: 0;
+      z-index: 200;
+      background: transparent;
+      pointer-events: auto;
+    }
+    /* On mobile we reserve 40px at the top for the status-bar spacer,
+       so push the CPU pill down below it (8px gap under the spacer). */
+    @media (max-width: 600px) {
+      body.embedded #titlebar-controls {
+        top: 48px;
+        z-index: 10000; /* above spacer pseudo-element (z:9999) */
+      }
+    }
+    /* !important + 2-ID selector needed: body.reading-mode #titlebar-controls
+       #ctrl-cpu-pill sets bg with !important at (0,2,1,1). Match that
+       specificity so source-order wins (this block is after style.css in <head>). */
+    /* Josh 2026-09-03: "I just don't look at metrics very often... maybe we
+       just have a little red light that shows up if it's burning hot, and then
+       I can click it and it opens up the whole thing, but it doesn't take up
+       any room otherwise."
+
+       So on the phone the readout is a bare dot that is INVISIBLE unless the
+       machine is genuinely hot. Tap still opens the full popover — the click
+       handler is untouched, and .cpu-high is already set by the existing
+       sampler, so this is presentation only (no new polling). */
+    body.embedded #titlebar-controls #ctrl-cpu-pill {
+      display: none !important;          /* calm machine = zero pixels */
+      width: 13px !important;
+      height: 13px !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+      gap: 0 !important;
+      border-radius: 50% !important;
+      border: 0 !important;
+      background: #FF3333 !important;
+      box-shadow: 0 0 0 3px rgba(255, 51, 51, 0.20) !important;
+      animation: cpuDotPulse 1.6s ease-in-out infinite;
+    }
+    /* Josh 2026-09-12: the ENGINE DASHBOARD in the steward row replaces this
+       dot on the phone entirely — a temperature gauge for the CPU and a
+       separate lamp per watched check, each with its own tap. The dot stayed
+       invisible until something was wrong and then had to carry two unrelated
+       meanings on one light; that is the "kinda dorky" thing being retired.
+       The rules below are therefore NO-OPs on the phone now (nothing lifts the
+       display:none above), kept so the desktop pill's own styling is
+       untouched and so this decision is legible rather than a silent
+       deletion. */
+    body.embedded #titlebar-controls #ctrl-cpu-pill.cpu-high {
+      display: none !important;
+    }
+    /* Josh 2026-09-11: a SECOND meaning on the same dot — "something is down
+       or missing", which unlike a hot CPU is ACTIONABLE. Amber, so it can
+       never be confused with the red busy-machine light; distinguishing those
+       two is the entire point of the request. Amber OUTRANKS red (set last in
+       renderCpuPill and given a heavier selector here) so a real problem can
+       never hide behind a busy machine. */
+    body.embedded #titlebar-controls #ctrl-cpu-pill.health-down,
+    body.embedded #titlebar-controls #ctrl-cpu-pill.health-down.cpu-high {
+      display: none !important;          /* the lamp in the panel says this now */
+    }
+    /* Numbers live in the popover now, not on the dot. */
+    body.embedded #ctrl-cpu-pill #cpu-pill-cpu,
+    body.embedded #ctrl-cpu-pill #cpu-pill-sep,
+    body.embedded #ctrl-cpu-pill #cpu-pill-procs { display: none !important; }
+    @keyframes cpuDotPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+    /* padding-top handled by style.css media queries (0 on desktop Electron,
+       100px on mobile for the Android status-bar spacer) */
+  </style>
+  <script>
+    // Embedded mode is now UNCONDITIONAL (Josh 2026-09-03: "get rid of it").
+    //
+    // This page used to build itself two ways off ?embedded=true. Without the
+    // param it rendered a strictly WORSE surface: no swipe-deck (that whole
+    // feature is gated on body.embedded) and no steward picker at all — the
+    // topbar is embedded-only and the old #sidebar markup was deleted
+    // 2026-08-29. Nothing shipped a usable non-embedded view; the bare URL was
+    // just a trap, and three callers (site root, /status, the APK's web-view
+    // tile) were all landing on it.
+    //
+    // One screen now. The param is still accepted so existing links keep
+    // working, but it no longer changes anything.
+    //
+    // Detect Electron via userAgent (reliable — preload.js can be timing-racy).
+    // body.electron gates Electron-only drag-region + window controls.
+    document.documentElement.classList.add('embedded-mode');
+    {
+      const isElectron = /Electron/i.test(navigator.userAgent);
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('embedded');
+        if (isElectron) document.body.classList.add('electron');
+      });
+    }
+  </script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div id="titlebar">
+    <div id="titlebar-drag">
+      <span id="titlebar-text">Presenter</span>
+      <span id="queue-count"></span>
+      <button id="btn-hood">Under the Hood</button>
+    </div>
+    <div id="titlebar-controls">
+      <label title="Opacity">&#x25D1;<input type="range" id="ctrl-opacity" min="20" max="100" value="92"></label>
+      <label title="Font size"><button class="ctrl-btn" id="ctrl-font-down">-</button><span class="ctrl-val" id="ctrl-font-val">14</span><button class="ctrl-btn" id="ctrl-font-up">+</button></label>
+      <button class="ctrl-btn" id="ctrl-reading-mode" title="Reading mode (warm editorial palette)">&#x1F4D6;</button>
+      <button class="ctrl-btn" id="ctrl-fullscreen" title="Toggle fullscreen (Cmd+Ctrl+F)">&#x26F6;</button>
+      <button class="ctrl-btn" id="ctrl-cpu-pill" title="Host CPU / process counts (click to expand)">
+        <span id="cpu-pill-cpu">—</span>
+        <span id="cpu-pill-sep">·</span>
+        <span id="cpu-pill-procs">—</span>
+      </button>
+    </div>
+    <button id="btn-minimize" title="Minimize">&#x2212;</button>
+  </div>
+
+  <!-- History panel REMOVED 2026-07-21 (unified message log): the Recent-queue
+       and History-search surfaces collapsed into ONE chronological log per
+       steward, rendered by the bottom-toolbar "Log" button. Search is dropped
+       entirely. The old cross-steward archive search + steward-filter dropdown
+       no longer exist; initHistoryViewer() self-disables without this markup. -->
+
+  <!-- Embedded topbar: horizontal steward icons (embedded mode only) -->
+  <div id="embedded-topbar"></div>
+  <div id="embedded-subbar"></div>
+
+  <!-- Inbox layout. The old desktop-native LEFT SIDEBAR (#sidebar / steward-list)
+       was retired (Josh 2026-04-21: "desktop-native view is dead") and removed
+       2026-08-29 — every live surface loads ?embedded=true, which renders the
+       bottom topbar instead. Only the conversation panel remains. -->
+  <div id="inbox-container">
+    <!-- Conversation thread (the live surface) -->
+    <div id="conversation-panel">
+      <div id="conv-header">
+        <span id="conv-steward-icon"></span>
+        <span id="conv-steward-name">Select a steward</span>
+        <span id="conv-steward-status"></span>
+        <button id="stewint-open-btn" title="Open dashboard">☷</button>
+      </div>
+      <!-- R4 (Josh 2026-08-13): Bookmarks pill removed. Links moved off this
+           top pill onto a per-card footer button; the #card-links-dropdown
+           overlay is retained and now toggled from that footer button. -->
+      <div id="card-links-dropdown" style="display:none;"></div>
+      <div id="conv-thread"></div>
+      <button id="scroll-to-bottom" title="Scroll to bottom">↓</button>
+      <div id="conv-empty">
+        <div class="empty-icon">&#x2615;</div>
+        <div class="empty-text">Select a steward to view messages</div>
+      </div>
+      <div id="bottom-toolbar"></div>
+      <!-- Composer panel (Joshua 2026-05-20): roomy multi-line drafting
+           surface toggled by the bottom-bar Type button. Single DOM, per-
+           card draft TEXT swapped in/out on deck navigation. Hidden until
+           the Type btn opens it; closes on Esc, tap-outside, or a second
+           Type-btn tap. Enter sends to the active card. -->
+      <div id="conv-composer" hidden>
+        <button id="conv-composer-expand" type="button" title="Expand composer" aria-label="Expand composer">⤢</button>
+        <button id="conv-composer-clear" type="button" title="Clear draft" aria-label="Clear draft">✕</button>
+        <textarea id="conv-bottom-textarea" data-native-input="true" placeholder="Type a message…" rows="4"></textarea>
+      </div>
+      <!-- Bottom bar (v5 — Josh's keyboard-button model, mobile):
+           Holds Type/Reload/Cards/Settings on the left and the split-pill
+           send affordances on the right. The composer textarea is no
+           longer inline here — it lives in #conv-composer above and the
+           Type button toggles it. -->
+      <div id="conv-bottom-input" style="display:flex;">
+        <!-- LEFT group: tools/actions. Josh R14: "all the icons on the left
+             then the two send buttons… right aligned on the screen." -->
+        <div class="conv-bottom-left">
+          <button id="conv-bottom-type-btn" type="button" title="Open composer" aria-label="Open composer"><span class="btn-icon">⌨️</span><span class="btn-sublabel">Type</span></button>
+          <button id="conv-bottom-reload-btn" type="button" title="Hard reload (cache-bust)" aria-label="Hard reload"><span class="btn-icon">🔄</span><span class="btn-sublabel">Reload</span></button>
+          <button id="conv-bottom-clear-cards-btn" type="button" title="Clear all cards for this steward" aria-label="Clear cards"><span class="btn-icon">🧹</span><span class="btn-sublabel">Cards</span></button>
+          <!-- 🗑️ Clear Session REMOVED 2026-04-21 (Josh R15 sub-ship 3): compaction
+               now lives exclusively in Settings dashboard. Element deleted. -->
+          <button id="conv-bottom-settings-btn" type="button" title="Settings" aria-label="Settings"><span class="btn-icon">⚙️</span><span class="btn-sublabel">Settings</span></button>
+        </div>
+        <!-- RIGHT group: split-pill send. -->
+        <div class="conv-bottom-right">
+          <!-- Keep-card pin toggle REMOVED 2026-07-14 (Josh's pin unification):
+               whether a reply keeps a card is now governed solely by the card's
+               own 📌 pin. One control, one meaning. -->
+          <!-- Dormant — hidden by CSS but kept in DOM for any legacy callers. -->
+          <button id="conv-bottom-card-send" title="Send to active card" aria-label="Send to card">
+            <span class="card-send-label">Send to card</span>
+          </button>
+          <!-- Split-button pill: LEFT=icon tap→send to steward, RIGHT=card# tap→send to that card. -->
+          <div id="conv-bottom-target-pill" title="Target for your message">
+            <button type="button" class="pill-icon-half" title="Send to steward" aria-label="Send to steward">
+              <span class="pill-icon"></span>
+            </button>
+            <span class="pill-divider" aria-hidden="true"></span>
+            <button type="button" class="pill-card-half" title="Send to current card" aria-label="Send to current card">
+              <span class="pill-card-num">—</span>
+            </button>
+            <span class="pill-label" aria-hidden="true">—</span>
+          </div>
+          <!-- Dormant standalone ➤ — hidden in embedded mode. Kept in DOM so
+               pill-icon-half can `bottomSend.click()` through to its handler. -->
+          <button id="conv-bottom-send" title="Send to steward" aria-label="Send to steward">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drag handle for resizing stewint panel -->
+    <div id="stewint-drag-handle" style="display:none;"></div>
+
+    <!-- Right panel: StewInt dashboard -->
+    <div id="stewint-panel" style="display:none;">
+      <div id="stewint-header">
+        <div id="stewint-tabs">
+          <button class="stewint-tab active" data-tab="stewint">StewInt</button>
+          <button class="stewint-tab" data-tab="metadata">Metadata</button>
+        </div>
+        <button id="stewint-toggle" title="Close panel">✕</button>
+      </div>
+      <iframe id="stewint-iframe" frameborder="0" style="flex:1;width:100%;border:none;"></iframe>
+      <div id="stewint-content" style="display:none;"></div>
+    </div>
+  </div>
+
+  <iframe id="hood-iframe" src=""></iframe>
+  <div id="undo-toast"></div>
+  <div id="undo-pill-slot" aria-live="polite"></div>
+
+  <!-- Settings panel — opens via ⚙️ button in bottom bar. Hosts font size + theme picker
+       only (Josh 2026-04-21: "font size selector + theme chooser ONLY"). Slide-in from
+       right, mobile-friendly full-height. CSS handles default hidden state; inline
+       display:none was removed because it beat the .open class rule in specificity. -->
+  <div id="settings-panel" aria-hidden="true">
+    <div id="settings-header">
+      <span id="settings-title">Settings</span>
+      <button id="settings-close" title="Close settings" aria-label="Close">✕</button>
+    </div>
+    <div id="settings-body"></div>
+  </div>
+  <div id="settings-scrim"></div>
+
+  <!-- Machine diagnostics — full-screen stat sheet (Josh 2026-08-29:
+       "instead of it being a little drop down from the sky, it should overtake
+       the whole screen and be a really in-depth, beautiful stat sheet").
+       Opened by tapping the health pill in the topbar. Body built by
+       renderMachineSheet() in app.js. -->
+  <div id="machine-sheet" aria-hidden="true">
+    <div id="machine-sheet-header">
+      <div id="machine-sheet-title">
+        <span id="machine-sheet-verdict">—</span>
+        <span id="machine-sheet-sub">machine diagnostics</span>
+      </div>
+      <button id="machine-sheet-close" title="Close" aria-label="Close">✕</button>
+    </div>
+    <div id="machine-sheet-body"></div>
+  </div>
+
+  <!-- Down/missing modal (Josh 2026-09-11). The SAME dot as the CPU light, in a
+       different colour, now carries a second meaning: "something is down or
+       missing." Deliberately a SMALL modal, not the full-screen stat sheet —
+       "it should maybe give me a little modal that pops up that says yep this
+       is down and then give me a link that gets me at least close to that app
+       so I can find it." Populated by renderHealthModal(). -->
+  <div id="health-modal" aria-hidden="true">
+    <div id="health-modal-card" role="dialog" aria-modal="true" aria-labelledby="health-modal-title">
+      <div id="health-modal-head">
+        <span id="health-modal-title">Something needs you</span>
+        <button id="health-modal-close" title="Close" aria-label="Close">&#x2715;</button>
+      </div>
+      <div id="health-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Urgency view (Josh 2026-08-15): count-only button emerging from the
+       bottom-right corner → tap toggles this overlay. needs-me cards LOW,
+       one-per-worker summaries HIGH. Populated by renderUrgencyView() from the
+       live queue; embedded (phone) mode only. -->
+  <div id="urgency-fab" title="What needs you"></div>
+  <div id="urgency-overlay">
+    <div class="u-head">
+      <div class="u-brand">
+        <span class="u-wordmark">The Docket</span>
+        <span class="u-title">what needs you</span>
+      </div>
+      <span class="u-close" id="urgency-close">✕</span>
+    </div>
+    <div class="u-summaries">
+      <div class="u-seclabel">FYI — nothing needed, latest per worker</div>
+      <div id="urgency-summaries-list"></div>
+    </div>
+    <div class="u-weighin">
+      <div class="u-seclabel">◐ Weigh in — moving, but you'd want to steer</div>
+      <div id="urgency-weighin-list"></div>
+    </div>
+    <div class="u-needs">
+      <div class="u-seclabel">● Blocked — needs your call to proceed</div>
+      <div id="urgency-needs-list"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+  <script src="/presenter/app.js?v=1788098396720"></script>
+</body>
+</html>

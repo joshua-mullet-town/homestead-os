@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f0f0f">
+  <title>Watchdog</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface-hover: #222;
+      --border: #2a2a2a;
+      --text: #e5e5e5;
+      --text-dim: #888;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --blue: #3b82f6;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-top: 8px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .refresh-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .refresh-btn:active {
+      transform: scale(0.95);
+      background: var(--surface-hover);
+    }
+
+    .refresh-btn.spinning svg {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .status-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .status-indicator {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .status-indicator.healthy {
+      background: rgba(34, 197, 94, 0.15);
+    }
+
+    .status-indicator.unhealthy {
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    .status-indicator.unknown {
+      background: rgba(234, 179, 8, 0.15);
+    }
+
+    .status-indicator::before {
+      content: '';
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+    }
+
+    .status-indicator.healthy::before {
+      background: var(--green);
+      box-shadow: 0 0 20px var(--green);
+    }
+
+    .status-indicator.unhealthy::before {
+      background: var(--red);
+      box-shadow: 0 0 20px var(--red);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .status-indicator.unknown::before {
+      background: var(--yellow);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status-label {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .status-sub {
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 18px;
+      border-radius: 14px;
+      border: none;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 20px;
+    }
+
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .action-btn.primary {
+      background: var(--blue);
+      color: white;
+    }
+
+    .action-btn.danger {
+      background: var(--red);
+      color: white;
+    }
+
+    .services-section h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .service-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .service-item {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .service-item:last-child {
+      border-bottom: none;
+    }
+
+    .service-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
+
+    .service-dot.online { background: var(--green); }
+    .service-dot.stopped { background: var(--red); }
+    .service-dot.errored { background: var(--red); }
+
+    .service-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .service-name {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+
+    .service-meta {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .service-action {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .service-action:active {
+      transform: scale(0.9);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: calc(20px + var(--safe-bottom));
+      left: 20px;
+      right: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      font-weight: 500;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      border-color: var(--green);
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .toast.error {
+      border-color: var(--red);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .last-updated {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 20px;
+    }
+
+    /* Emergency Worker Styles */
+    .emergency-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .emergency-section h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .mode-tab {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-tab:active {
+      transform: scale(0.98);
+    }
+
+    .mode-tab.active {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: #000;
+    }
+
+    .emergency-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+
+    .emergency-textarea:focus {
+      outline: none;
+      border-color: var(--yellow);
+    }
+
+    .emergency-textarea::placeholder {
+      color: var(--text-dim);
+    }
+
+    .emergency-textarea.hidden {
+      display: none;
+    }
+
+    .action-btn.warning {
+      background: var(--yellow);
+      color: #000;
+    }
+
+    .worker-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    .worker-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .worker-item:last-child {
+      border-bottom: none;
+    }
+
+    .worker-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .worker-name {
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .worker-status {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .worker-status.running {
+      background: rgba(234, 179, 8, 0.2);
+      color: var(--yellow);
+    }
+
+    .worker-status.complete {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--green);
+    }
+
+    .worker-status.killed,
+    .worker-status.timeout {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--red);
+    }
+
+    .worker-meta {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .worker-summary {
+      margin-top: 10px;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .worker-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .worker-action-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .worker-action-btn:active {
+      transform: scale(0.98);
+    }
+
+    .worker-action-btn.danger {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .empty-workers {
+      padding: 20px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    /* Phone API Section */
+    .phone-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .phone-section h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .phone-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .phone-status-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .phone-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .phone-dot.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .phone-dot.offline { background: var(--red); animation: pulse 2s ease-in-out infinite; }
+
+    .phone-label {
+      font-weight: 600;
+      font-size: 16px;
+      flex: 1;
+    }
+
+    .phone-host {
+      font-size: 13px;
+      color: var(--text-dim);
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+
+    .phone-error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--red);
+    }
+
+    .phone-help {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-dim);
+    }
+
+    .phone-help strong {
+      color: var(--text);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .phone-help ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .phone-help li {
+      margin-bottom: 4px;
+    }
+
+    .phone-test-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.15s;
+    }
+
+    .phone-test-btn:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Watchdog</h1>
+      <button class="refresh-btn" onclick="refresh()" id="refreshBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+          <path d="M21 3v5h-5"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="status-hero">
+      <div class="status-indicator unknown" id="statusIndicator"></div>
+      <div class="status-label" id="statusLabel">Checking...</div>
+      <div class="status-sub" id="statusSub">Connecting to Homestead</div>
+    </div>
+
+    <button class="action-btn primary" id="restartBtn" onclick="restartHomestead()">
+      Restart Homestead
+    </button>
+
+    <div class="services-section">
+      <h2>Services</h2>
+      <div class="service-list" id="serviceList">
+        <div class="service-item">
+          <div class="service-dot"></div>
+          <div class="service-info">
+            <div class="service-name">Loading...</div>
+            <div class="service-meta">Fetching status</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="last-updated" id="lastUpdated"></div>
+
+    <!-- Phone API Section -->
+    <div class="phone-section">
+      <h2>Phone API</h2>
+      <div class="phone-card" id="phoneCard">
+        <div class="phone-status-row">
+          <div class="phone-dot offline" id="phoneDot"></div>
+          <div class="phone-label" id="phoneLabel">Checking...</div>
+        </div>
+        <div class="phone-host" id="phoneHost"></div>
+      </div>
+    </div>
+
+    <!-- Emergency Worker Section -->
+    <div class="emergency-section">
+      <h2>Emergency Repair</h2>
+
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="simple" onclick="setMode('simple')">Simple</button>
+        <button class="mode-tab" data-mode="bug" onclick="setMode('bug')">Bug</button>
+        <button class="mode-tab" data-mode="other" onclick="setMode('other')">Other</button>
+      </div>
+
+      <textarea
+        id="emergencyMessage"
+        class="emergency-textarea hidden"
+        placeholder="Paste error message or describe the issue..."
+      ></textarea>
+
+      <button class="action-btn warning" id="launchWorkerBtn" onclick="launchEmergencyWorker()">
+        Launch Emergency Worker
+      </button>
+
+      <div class="worker-list" id="workerList">
+        <div class="empty-workers">No emergency workers</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let lastStatus = null;
+
+    function formatUptime(ms) {
+      if (!ms) return 'Unknown';
+      const uptime = Date.now() - ms;
+      const hours = Math.floor(uptime / 3600000);
+      const mins = Math.floor((uptime % 3600000) / 60000);
+      if (hours > 24) {
+        const days = Math.floor(hours / 24);
+        return `${days}d ${hours % 24}h`;
+      }
+      if (hours > 0) return `${hours}h ${mins}m`;
+      return `${mins}m`;
+    }
+
+    function formatMemory(bytes) {
+      if (!bytes) return '';
+      const mb = bytes / 1024 / 1024;
+      return `${mb.toFixed(0)}MB`;
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    async function refresh() {
+      const btn = document.getElementById('refreshBtn');
+      btn.classList.add('spinning');
+
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        lastStatus = data;
+        updateUI(data);
+      } catch (e) {
+        updateUI({ homestead: { healthy: false, error: 'Connection failed' }, services: [] });
+      }
+
+      btn.classList.remove('spinning');
+    }
+
+    function updateUI(data) {
+      const indicator = document.getElementById('statusIndicator');
+      const label = document.getElementById('statusLabel');
+      const sub = document.getElementById('statusSub');
+      const restartBtn = document.getElementById('restartBtn');
+
+      if (data.homestead.healthy) {
+        indicator.className = 'status-indicator healthy';
+        label.textContent = 'Homestead Online';
+        sub.textContent = 'All systems operational';
+        restartBtn.className = 'action-btn primary';
+      } else {
+        indicator.className = 'status-indicator unhealthy';
+        label.textContent = 'Homestead Down';
+        sub.textContent = data.homestead.error || 'Service unavailable';
+        restartBtn.className = 'action-btn danger';
+      }
+
+      // Update services
+      const list = document.getElementById('serviceList');
+      if (data.services && data.services.length > 0) {
+        list.innerHTML = data.services.map(s => `
+          <div class="service-item">
+            <div class="service-dot ${s.status}"></div>
+            <div class="service-info">
+              <div class="service-name">${s.name}</div>
+              <div class="service-meta">${formatUptime(s.uptime)} · ${formatMemory(s.memory)} · ${s.restarts} restarts</div>
+            </div>
+            <button class="service-action" onclick="restartService('${s.name}')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+              </svg>
+            </button>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('lastUpdated').textContent =
+        `Updated ${new Date().toLocaleTimeString()}`;
+
+      // Update phone status
+      updatePhoneUI(data.phone);
+    }
+
+    function updatePhoneUI(phone) {
+      const dot = document.getElementById('phoneDot');
+      const label = document.getElementById('phoneLabel');
+      const host = document.getElementById('phoneHost');
+      const card = document.getElementById('phoneCard');
+
+      if (!phone) {
+        label.textContent = 'Unknown';
+        return;
+      }
+
+      host.textContent = `${phone.host}:${phone.port}`;
+
+      if (phone.healthy) {
+        dot.className = 'phone-dot online';
+        label.textContent = 'Phone API Online';
+
+        // Remove any existing error/help sections
+        const existingError = card.querySelector('.phone-error');
+        const existingHelp = card.querySelector('.phone-help');
+        const existingBtn = card.querySelector('.phone-test-btn');
+        if (existingError) existingError.remove();
+        if (existingHelp) existingHelp.remove();
+        if (existingBtn) existingBtn.remove();
+      } else {
+        dot.className = 'phone-dot offline';
+        label.textContent = 'Phone API Offline';
+
+        // Add error and help if not already present
+        if (!card.querySelector('.phone-error')) {
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'phone-error';
+          errorDiv.textContent = phone.error || 'Unable to connect';
+          card.appendChild(errorDiv);
+
+          const helpDiv = document.createElement('div');
+          helpDiv.className = 'phone-help';
+          helpDiv.innerHTML = `
+            <strong>Troubleshooting:</strong>
+            <ul>
+              <li>Make sure the Homestead app is open on your phone</li>
+              <li>Check that the API server is started in the app</li>
+              <li>Verify your phone is on the same network or Tailscale</li>
+              <li>Phone IP might have changed - check the app for current IP</li>
+            </ul>
+          `;
+          card.appendChild(helpDiv);
+
+          const testBtn = document.createElement('button');
+          testBtn.className = 'phone-test-btn';
+          testBtn.textContent = 'Test Connection';
+          testBtn.onclick = testPhoneConnection;
+          card.appendChild(testBtn);
+        }
+      }
+    }
+
+    async function testPhoneConnection() {
+      const btn = document.querySelector('.phone-test-btn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Testing...';
+      }
+
+      try {
+        const res = await fetch('/api/phone/test');
+        const data = await res.json();
+
+        if (data.healthy) {
+          showToast('Phone API is reachable!', 'success');
+        } else {
+          showToast(`Connection failed: ${data.error}`, 'error');
+        }
+      } catch (e) {
+        showToast('Test failed', 'error');
+      }
+
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Test Connection';
+      }
+
+      refresh();
+    }
+
+    async function restartHomestead() {
+      const btn = document.getElementById('restartBtn');
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Restarting...';
+
+      try {
+        const res = await fetch('/api/restart', { method: 'POST' });
+        const data = await res.json();
+        showToast(data.message, data.success ? 'success' : 'error');
+        setTimeout(refresh, 3000);
+      } catch (e) {
+        showToast('Failed to restart', 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+
+    async function restartService(name) {
+      try {
+        const res = await fetch(`/api/restart/${name}`, { method: 'POST' });
+        const data = await res.json();
+        showToast(data.message, data.success ? 'success' : 'error');
+        setTimeout(refresh, 2000);
+      } catch (e) {
+        showToast(`Failed to restart ${name}`, 'error');
+      }
+    }
+
+    // ===== EMERGENCY WORKER FUNCTIONS =====
+    let currentMode = 'simple';
+
+    function setMode(mode) {
+      currentMode = mode;
+
+      // Update tab styles
+      document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.mode === mode);
+      });
+
+      // Show/hide textarea
+      const textarea = document.getElementById('emergencyMessage');
+      textarea.classList.toggle('hidden', mode === 'simple');
+
+      // Update placeholder
+      if (mode === 'bug') {
+        textarea.placeholder = 'Paste the error message or stack trace...';
+      } else if (mode === 'other') {
+        textarea.placeholder = 'Describe the system issue...';
+      }
+    }
+
+    async function launchEmergencyWorker() {
+      const btn = document.getElementById('launchWorkerBtn');
+      const message = document.getElementById('emergencyMessage').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Launching...';
+
+      try {
+        const res = await fetch('/api/emergency-worker', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: currentMode, message })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(`Worker launched: ${data.sessionName}`, 'success');
+          document.getElementById('emergencyMessage').value = '';
+          refreshWorkers();
+        } else {
+          showToast(`Failed: ${data.error}`, 'error');
+        }
+      } catch (e) {
+        showToast('Failed to launch worker', 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Launch Emergency Worker';
+    }
+
+    async function refreshWorkers() {
+      try {
+        const res = await fetch('/api/emergency-workers');
+        const data = await res.json();
+        updateWorkerList(data.workers);
+      } catch (e) {
+        console.error('Failed to fetch workers:', e);
+      }
+    }
+
+    function updateWorkerList(workers) {
+      const list = document.getElementById('workerList');
+
+      if (!workers || workers.length === 0) {
+        list.innerHTML = '<div class="empty-workers">No emergency workers</div>';
+        return;
+      }
+
+      list.innerHTML = workers.map(w => {
+        const modeBadge = w.mode === 'simple' ? 'Simple' : w.mode === 'bug' ? 'Bug Fix' : 'Other';
+        const startTime = new Date(w.startedAt).toLocaleTimeString();
+
+        let summaryHtml = '';
+        if (w.summary) {
+          summaryHtml = `<div class="worker-summary">${escapeHtml(w.summary)}</div>`;
+        }
+
+        let actionsHtml = '';
+        if (w.status === 'running') {
+          actionsHtml = `
+            <div class="worker-actions">
+              <button class="worker-action-btn danger" onclick="killWorker('${w.sessionName}')">Kill Worker</button>
+            </div>
+          `;
+        } else {
+          actionsHtml = `
+            <div class="worker-actions">
+              <button class="worker-action-btn" onclick="viewWorkerDetails('${w.sessionName}')">View Details</button>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="worker-item">
+            <div class="worker-header">
+              <div class="worker-name">
+                ${modeBadge}
+                <span class="worker-status ${w.status}">${w.status}</span>
+              </div>
+            </div>
+            <div class="worker-meta">Started ${startTime}${w.completedAt ? ` · Completed ${new Date(w.completedAt).toLocaleTimeString()}` : ''}</div>
+            ${summaryHtml}
+            ${actionsHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function killWorker(sessionName) {
+      try {
+        const res = await fetch(`/api/emergency-worker/${sessionName}`, { method: 'DELETE' });
+        const data = await res.json();
+        showToast('Worker killed', 'success');
+        refreshWorkers();
+      } catch (e) {
+        showToast('Failed to kill worker', 'error');
+      }
+    }
+
+    async function viewWorkerDetails(sessionName) {
+      try {
+        const res = await fetch(`/api/emergency-worker/${sessionName}`);
+        const data = await res.json();
+
+        if (data.summary) {
+          alert(data.summary);
+        } else {
+          alert('No summary available yet');
+        }
+      } catch (e) {
+        showToast('Failed to fetch details', 'error');
+      }
+    }
+
+    async function cleanupWorkers() {
+      try {
+        const res = await fetch('/api/emergency-workers/cleanup', { method: 'POST' });
+        const data = await res.json();
+        showToast(`Cleaned up ${data.cleaned} workers`, 'success');
+        refreshWorkers();
+      } catch (e) {
+        showToast('Failed to cleanup', 'error');
+      }
+    }
+
+    // Initial load
+    refresh();
+    refreshWorkers();
+
+    // Auto-refresh every 15 seconds
+    setInterval(refresh, 15000);
+    setInterval(refreshWorkers, 10000);
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
+  </script>
+</body>
+</html>

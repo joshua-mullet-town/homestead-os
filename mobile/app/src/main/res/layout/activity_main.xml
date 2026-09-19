@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <!-- Home container. Only one of {presenter, homestead-web} is visible at a time.
+         Swapped by FragmentTransaction.show/hide — no swipe nav as of 2026-04-20. -->
+    <FrameLayout
+        android:id="@+id/home_pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/text_input_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Legacy fragment container for non-pager fragments (chat, sessions, guest chat) -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/text_input_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Expandable text input area (hidden by default) - Video game style -->
+    <LinearLayout
+        android:id="@+id/text_input_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/input_container_background"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp"
+        android:visibility="gone"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <EditText
+            android:id="@+id/text_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/input_background"
+            android:hint="⌨ Type command..."
+            android:textColorHint="#00CCFF"
+            android:textColor="#FFFFFF"
+            android:fontFamily="monospace"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp"
+            android:maxLines="4"
+            android:imeOptions="actionSend"
+            android:inputType="textMultiLine" />
+
+        <!-- Send arrow REMOVED 2026-08-30 (Josh): "I already have the sending
+             options readily available in the homestead interface and I want to
+             reclaim more of those pixels for the actual text box." The 52dp
+             button plus its 10dp margin now belong to the EditText (which is
+             layout_weight=1, so it absorbs the freed width automatically).
+             Submission still works — the IME "send" key routes through
+             submitTextInput() in MainActivity, which no longer depends on this
+             button existing. -->
+
+    </LinearLayout>
+
+    <!-- FloatingControls are added programmatically on top of fragment_container -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

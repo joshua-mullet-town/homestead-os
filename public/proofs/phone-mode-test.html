@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone Mode — Test It</title>
+<style>
+  :root{
+    --bg:#0d0d0d; --card:#171717; --line:#2a2a2a;
+    --ink:#f2f2f2; --dim:#9a9a9a; --accent:#FF6600; --ok:#37d67a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:20px 16px 64px; max-width:720px; margin-inline:auto;
+  }
+  h1{font-size:25px; margin:0 0 6px; letter-spacing:-.02em}
+  .sub{color:var(--dim); margin:0 0 22px; font-size:15px}
+  .bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:6px}
+  .bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+  .count{font-size:13px;color:var(--dim);margin-bottom:22px}
+  .step{
+    background:var(--card); border:1px solid var(--line); border-left:3px solid var(--line);
+    border-radius:12px; padding:14px 16px; margin-bottom:12px; cursor:pointer;
+    display:flex; gap:13px; align-items:flex-start; transition:border-color .15s,opacity .15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .step:active{border-color:var(--accent)}
+  .step.done{border-left-color:var(--ok); opacity:.55}
+  .step.done .what{text-decoration:line-through}
+  .box{
+    flex:0 0 22px;height:22px;margin-top:1px;border-radius:6px;
+    border:2px solid #4a4a4a;display:grid;place-items:center;
+    font-size:14px;color:#0d0d0d;font-weight:700;
+  }
+  .step.done .box{background:var(--ok);border-color:var(--ok)}
+  .step.done .box::after{content:"✓"}
+  .what{font-weight:600; margin-bottom:3px}
+  .why{color:var(--dim); font-size:14px}
+  .n{color:var(--accent); font-weight:700; margin-right:5px}
+  .note{
+    background:#141414;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;margin:24px 0 0;color:var(--dim);font-size:14px
+  }
+  .note b{color:var(--ink)}
+  .reset{
+    margin-top:26px;background:none;border:1px solid var(--line);color:var(--dim);
+    padding:9px 15px;border-radius:9px;font-size:13px;cursor:pointer
+  }
+  .done-all{
+    background:rgba(55,214,122,.1);border:1px solid var(--ok);color:var(--ok);
+    border-radius:12px;padding:13px 16px;margin-bottom:18px;font-weight:600;display:none
+  }
+  .done-all.show{display:block}
+</style>
+</head>
+<body>
+
+<h1>Phone Mode</h1>
+<p class="sub">Five taps to check it. Your place is saved — close this and come back anytime.</p>
+
+<div class="bar"><i id="fill"></i></div>
+<div class="count" id="count"></div>
+
+<div class="done-all" id="allDone">All five check out. Nice — that's the whole feature working.</div>
+
+<div id="steps"></div>
+
+<div class="note">
+  <b>If the apps look wrong at first:</b> the top-apps grid learns from what you
+  actually open. Right after updating it may show your pinned favorites instead —
+  it fills in on its own as it watches your usage.
+  <br><br>
+  <b>Anything off?</b> Just reply on the card and tell me what you saw.
+</div>
+
+<button class="reset" id="reset">Clear my checkmarks</button>
+
+<script>
+const STEPS = [
+  { what:"Open Homestead and tap UPDATE",
+    why:"Grabs the new build. The app restarts itself when it's done." },
+  { what:"Tap the ⊞ grid button on the right edge",
+    why:"It used to open the app drawer. Now it flips you into Phone mode — your own wallpaper, a clock, the date, and your most-used apps." },
+  { what:"Swipe up from the bottom",
+    why:"That's where the full app drawer lives now, search box and all. Everything you had is still there." },
+  { what:"Turn the screen off, then back on",
+    why:"You should land back in Phone mode — not Homestead. Press the Home button too; that should also keep you in Phone mode." },
+  { what:"Tap ⊞ again",
+    why:"Flips you back to Homestead, exactly the way it looks today. That mode sticks the same way." },
+];
+
+const KEY = "phone-mode-test-v1";
+let done = [];
+try { done = JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { done = []; }
+
+const wrap = document.getElementById("steps");
+
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(done)); } catch(e){}
+}
+
+function render(){
+  wrap.innerHTML = "";
+  STEPS.forEach(function(s,i){
+    const el = document.createElement("div");
+    el.className = "step" + (done.indexOf(i) !== -1 ? " done" : "");
+    el.innerHTML =
+      '<div class="box"></div>' +
+      '<div><div class="what"><span class="n">'+(i+1)+'</span>'+s.what+'</div>' +
+      '<div class="why">'+s.why+'</div></div>';
+    el.onclick = function(){
+      done = done.indexOf(i) !== -1 ? done.filter(function(x){return x!==i;}) : done.concat(i);
+      save(); render();
+    };
+    wrap.appendChild(el);
+  });
+
+  const n = done.length, t = STEPS.length;
+  document.getElementById("fill").style.width = (n/t*100)+"%";
+  document.getElementById("count").textContent = n+" of "+t+" checked";
+  document.getElementById("allDone").className = "done-all" + (n===t ? " show" : "");
+}
+
+document.getElementById("reset").onclick = function(){
+  done = []; save(); render(); window.scrollTo(0,0);
+};
+
+let scrollTimer;
+window.addEventListener("scroll", function(){
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(function(){
+    try { localStorage.setItem(KEY+"-scroll", String(window.scrollY)); } catch(e){}
+  }, 120);
+});
+
+render();
+
+// Restore where he left off.
+try {
+  const y = parseInt(localStorage.getItem(KEY+"-scroll")||"0", 10);
+  if (y > 0) window.scrollTo(0, y);
+} catch(e){}
+</script>
+
+</body>
+</html>

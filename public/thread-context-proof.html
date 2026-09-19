@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Thread-Context Enrichment — Live Proof</title>
+<style>body{font:16px/1.5 -apple-system,system-ui,sans-serif;margin:0;background:#0d1117;color:#e6edf3;padding:16px}
+h1{font-size:20px}h2{font-size:16px;color:#58a6ff;margin-top:28px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:14px;margin:10px 0}
+.ok{color:#3fb950;font-weight:700}.msg{background:#0d1117;border-left:3px solid #388bfd;border-radius:6px;padding:8px 10px;margin:8px 0;font-size:14px}
+.t{color:#8b949e;font-size:12px}.k{color:#8b949e;font-size:13px}.warn{background:#231a00;border:1px solid #9e6a03;border-radius:8px;padding:12px;color:#e3b341;font-size:14px}</style></head>
+<body><h1>🧵 Thread-Context Enrichment — Live Proof</h1>
+<p class="ok">✔ SHIPPED — incoming text notifications now carry recent thread history to Alfred, on both the instant path and the 5-min backstop.</p>
+
+<h2>Example 1 — a direct contact (phone-number match)</h2>
+<div class="card"><div class="k">Notification title: <b>(616) 406-8841</b> → resolved thread <b>num_6164068841</b> · 1 message(s) bundled</div><div class="msg"><span class="t">7/10/2026, 10:08:25 AM</span><br>Got it, thanks for the update</div></div>
+
+<h2>Example 2 — the ambiguous-match fix (was broken)</h2>
+<div class="card"><div class="k">A group thread that used to return a useless <i>candidate list</i> now resolves to real messages. Title: <b>Hallie Enderle, <<REPLACE: a family contact>> Mullet, Ryan Benner, <<REPLACE: a contact alias>>, (513) 370-6100: <<REPLACE: a family contact>> Mullet</b> → thread <b>hallie_enderle_nicole_mullet_ryan_benner_yoko_ono_513_370_6100_nicole_mullet</b> · 3 messages</div><div class="msg"><span class="t">8/7/2026, 2:17:48 PM</span><br>Matt!!!! Aww this is so awesome!! I know Ryan is actually getting next Friday off cuz we are going to the Hardy concert in south bend that evening so if I can get a babysitter for during the day we would love to hang out! Not sure if I would golf cuz I stink but we would love to see you! And I can try to get up to Michigan before then too! 😃</div><div class="msg"><span class="t">8/7/2026, 2:23:44 PM</span><br>Fuck. I saw ND and just locked in lol well unfortunately because of the concert and <<REPLACE: a family contact>> we can’t make that work 😢 thanks so much for asking tho!</div><div class="msg"><span class="t">8/7/2026, 3:23:38 PM</span><br>That was be amazing!!!</div></div>
+
+<div class="warn"><b>One honest limitation (flagged, not fixed — separate job):</b> these are <b>incoming-only</b>. The phone only captures texts you <i>receive</i>, never the ones <i>you send</i> — so your own replies still won't appear in-thread. Pulling your sent messages needs reading the phone's SMS/RCS database directly, which is a separate, harder follow-on.</div>
+</body></html>

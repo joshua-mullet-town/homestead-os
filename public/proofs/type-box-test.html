@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Typing box + card order — test it</title>
+<style>
+  :root {
+    --bg: #12100e;
+    --panel: #1c1917;
+    --panel-2: #232019;
+    --line: #3a332a;
+    --text: #ebdbb2;
+    --dim: #a89984;
+    --orange: #fe8019;
+    --green: #b8bb26;
+    --blue: #83a598;
+    --red: #fb4934;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.55;
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(90px + env(safe-area-inset-bottom, 0px));
+    -webkit-text-size-adjust: 100%;
+  }
+  h1 { font-size: 25px; margin: 0 0 6px; letter-spacing: -0.4px; }
+  .sub { color: var(--dim); margin: 0 0 20px; font-size: 15.5px; }
+
+  .banner {
+    background: linear-gradient(135deg, #3a2a12, #2a2114);
+    border: 1px solid var(--orange); border-radius: 14px;
+    padding: 14px 16px; margin: 0 0 22px;
+  }
+  .banner b { color: var(--orange); }
+
+  .progress-wrap { margin: 0 0 22px; }
+  .bar { height: 9px; background: var(--panel-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+  .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--orange), var(--green)); transition: width .3s ease; }
+  .bar-label { font-size: 13.5px; color: var(--dim); margin-top: 7px; }
+
+  .step {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 15px 16px; margin: 0 0 13px;
+    display: flex; gap: 13px; align-items: flex-start;
+    cursor: pointer; user-select: none; -webkit-user-select: none;
+    transition: border-color .18s, background .18s, opacity .18s;
+  }
+  .step:active { background: var(--panel-2); }
+  .step.done { opacity: .58; border-color: #4a5a2a; }
+  .step.done .step-title { text-decoration: line-through; text-decoration-color: var(--dim); }
+  .box {
+    flex: 0 0 26px; width: 26px; height: 26px; margin-top: 1px;
+    border: 2px solid var(--line); border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 16px; font-weight: 700; color: transparent;
+    transition: all .18s;
+  }
+  .step.done .box { background: var(--green); border-color: var(--green); color: #1d2021; }
+  .step-body { flex: 1; min-width: 0; }
+  .step-title { font-weight: 640; margin-bottom: 3px; }
+  .step-note { color: var(--dim); font-size: 14.5px; }
+
+  h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 1.3px;
+    color: var(--orange); margin: 30px 0 12px; font-weight: 700;
+  }
+
+  .expect {
+    border-left: 3px solid var(--green); background: #1a1d14;
+    padding: 9px 13px; border-radius: 0 9px 9px 0; margin-top: 9px;
+    font-size: 14.5px;
+  }
+  .expect b { color: var(--green); }
+  .wasbad {
+    border-left: 3px solid var(--red); background: #21150f;
+    padding: 9px 13px; border-radius: 0 9px 9px 0; margin-top: 7px;
+    font-size: 14.5px; color: var(--dim);
+  }
+  .wasbad b { color: var(--red); }
+
+  .reset {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    background: var(--panel); color: var(--dim);
+    border: 1px solid var(--line); border-radius: 99px;
+    padding: 11px 22px; font-size: 14.5px; font-family: inherit;
+    box-shadow: 0 6px 22px rgba(0,0,0,.6);
+  }
+  .reset:active { background: var(--panel-2); }
+  .saved-note { text-align: center; color: var(--dim); font-size: 13px; margin-top: 26px; }
+</style>
+</head>
+<body>
+
+<h1>Your typing box &amp; card order</h1>
+<p class="sub">Five things you asked for. Tap each line as you go — this page remembers where you were, even if you close it.</p>
+
+<div class="banner">
+  <b>First:</b> open Homestead on your phone and tap <b>UPDATE</b> on the home screen. Everything below needs the new version.
+</div>
+
+<div class="progress-wrap">
+  <div class="bar"><div class="bar-fill" id="fill"></div></div>
+  <div class="bar-label" id="label">0 of 9 done</div>
+</div>
+
+<h2>The card order</h2>
+
+<div class="step" data-id="s1">
+  <div class="box">✓</div>
+  <div class="step-body">
+    <div class="step-title">Go into a stack of cards and move a few in</div>
+    <div class="step-note">Not the newest one — get a few cards deep, so you can tell if it throws you.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s2">
+  <div class="box">✓</div>
+  <div class="step-body">
+    <div class="step-title">Answer that card</div>
+    <div class="step-note">Type a reply and send it, or tap one of its buttons.</div>
+    <div class="expect"><b>Should happen:</b> you land on the very next card — one step toward the newest, exactly where you were. You keep your place.</div>
+    <div class="wasbad"><b>Was happening:</b> it flung you to the end of the queue, so every answer knocked you out of your backlog.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s3">
+  <div class="box">✓</div>
+  <div class="step-body">
+    <div class="step-title">Answer three or four in a row</div>
+    <div class="step-note">Just keep going.</div>
+    <div class="expect"><b>Should happen:</b> you walk steadily through them one at a time, never bouncing back to the end.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s4">
+  <div class="box">✓</div>
+  <div class="step-body">
+    <div class="step-title">Answer the very newest card</div>
+    <div class="step-note">There's nothing newer to move to.</div>
+    <div class="expect"><b>Should happen:</b> you drop back one to the card just before it, instead of getting stranded on a blank.</div>
+  </div>
+</div>
+
+<h2>The typing box</h2>
+
+<div class="step" data-id="s5">
+  <div class="box">✓</div>
+  <div class="step-body">
+    <div class="step-title">Tap TYPE in the lower left</div>
+    <div class="expect"><b>Should happen:</b> the fast built-in box comes up — the one with no lag — instead of the slow one. Type a long sentence quickly and see if it keeps up.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s6">
+  <div class="box">✓</div>
+  <div class="step-body">
+    <div class="step-title">The little arrow beside the box is gone</div>
+    <div class="expect"><b>Should happen:</b> no send arrow, and the text box is wider — it took those pixels. You send with the send options you already have, or the keyboard's own send key.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s7">
+  <div class="box">✓</div>
+  <div class="step-body">
+    <div class="step-title">Type something, then tap the send button</div>
+    <div class="step-note">Try both — the one that goes to the card, and the one that goes to the steward.</div>
+    <div class="expect"><b>Should happen:</b> it actually sends. Both options work.</div>
+    <div class="wasbad"><b>Was happening:</b> nothing at all. You'd tap send and it just quietly did nothing, with no error — this is the bug you caught while writing that message.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s8">
+  <div class="box">✓</div>
+  <div class="step-body">
+    <div class="step-title">Half-write a message, leave the card, come back</div>
+    <div class="step-note">Start typing on one card, swipe to another, then swipe back.</div>
+    <div class="expect"><b>Should happen:</b> your half-written text is still there, on the card you wrote it on. Each card keeps its own.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s9">
+  <div class="box">✓</div>
+  <div class="step-body">
+    <div class="step-title">Tap send with an empty box</div>
+    <div class="expect"><b>Should happen:</b> it tells you there's nothing to send. It should never just swallow the tap and leave you guessing whether it went.</div>
+  </div>
+</div>
+
+<p class="saved-note">Your place is saved automatically.</p>
+
+<button class="reset" id="reset">Start over</button>
+
+<script>
+(function () {
+  var KEY = 'type-box-test-v1';
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var fill = document.getElementById('fill');
+  var label = document.getElementById('label');
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function save(state) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function paint() {
+    var state = load();
+    var done = 0;
+    steps.forEach(function (el) {
+      var on = !!state[el.dataset.id];
+      el.classList.toggle('done', on);
+      if (on) done++;
+    });
+    fill.style.width = (done / steps.length * 100) + '%';
+    label.textContent = done + ' of ' + steps.length + ' done'
+      + (done === steps.length ? ' — all clear' : '');
+  }
+
+  steps.forEach(function (el) {
+    el.addEventListener('click', function () {
+      var state = load();
+      var id = el.dataset.id;
+      if (state[id]) delete state[id]; else state[id] = 1;
+      save(state);
+      paint();
+      try { localStorage.setItem(KEY + ':scroll', String(window.scrollY)); } catch (e) {}
+    });
+  });
+
+  document.getElementById('reset').addEventListener('click', function () {
+    try { localStorage.removeItem(KEY); localStorage.removeItem(KEY + ':scroll'); } catch (e) {}
+    paint();
+    window.scrollTo(0, 0);
+  });
+
+  window.addEventListener('scroll', function () {
+    try { localStorage.setItem(KEY + ':scroll', String(window.scrollY)); } catch (e) {}
+  }, { passive: true });
+
+  paint();
+  try {
+    var y = parseInt(localStorage.getItem(KEY + ':scroll') || '0', 10);
+    if (y > 0) window.scrollTo(0, y);
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

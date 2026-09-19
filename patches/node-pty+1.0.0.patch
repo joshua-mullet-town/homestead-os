@@ -1,0 +1,22 @@
+diff --git a/node_modules/node-pty/src/unix/pty.cc b/node_modules/node-pty/src/unix/pty.cc
+index cb5649e..c913769 100644
+--- a/node_modules/node-pty/src/unix/pty.cc
++++ b/node_modules/node-pty/src/unix/pty.cc
+@@ -805,8 +805,15 @@ done:
+   posix_spawn_file_actions_destroy(&acts);
+   posix_spawnattr_destroy(&attrs);
+ 
+-  for (; count > 0; count--) {
+-    close(low_fds[count]);
++  // NOTE(homestead): fixed off-by-one fd leak. The reservation loop above breaks
++  // WITHOUT incrementing `count`, so valid reserved descriptors live at indices
++  // 0..count INCLUSIVE. The original `for (; count > 0; count--) close(low_fds[count])`
++  // never closed low_fds[0] (and closed nothing at all when count==0, the common
++  // case), leaking one /dev/ptmx master fd per spawn until kern.tty.ptmx_max.
++  size_t last = count < 3 ? count : 2;   // if the loop never broke, count==3 but only [0..2] are valid
++  for (size_t i = 0; i <= last; i++) {
++    if (low_fds[i] >= 0)
++      close(low_fds[i]);
+   }
+ }
+ #endif

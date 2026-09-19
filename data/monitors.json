@@ -1,0 +1,10 @@
+{
+  "monitors": [
+    {
+      "id": "firestore-bridge",
+      "heartbeat_file": "/tmp/homestead-monitor-firestore-bridge.json",
+      "stale_threshold_seconds": 60,
+      "owner": "holler-venture"
+    }
+  ]
+}

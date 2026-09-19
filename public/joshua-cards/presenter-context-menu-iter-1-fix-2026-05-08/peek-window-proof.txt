@@ -1,0 +1,94 @@
+=== Peek-window wrapper end-to-end proof ===
+Date: 2026-05-08
+Operator: holler-homestead--foreman--presenter-context-menu-and-tmux-view
+tmux version: 3.5a
+
+CLIPBOARD PAYLOAD (what user pastes after "Copy attach command"):
+
+  tmux new-window -t SESSION -n peek 'echo "Welcome to peek window. Ctrl-b 0 = view session, Ctrl-b 1 = back here, exit = leave safely."; $SHELL; tmux detach-client' \; attach -t SESSION
+
+THE WRAPPER MECHANISM:
+
+  1. `tmux new-window -t SESSION -n peek 'echo …; $SHELL; tmux detach-client'`
+     Creates a new window in SESSION named "peek". The pane runs:
+       a. `echo` the welcome banner (visible immediately on attach)
+       b. `$SHELL` — a fresh interactive shell (full keyboard control)
+       c. AFTER the shell exits, `tmux detach-client` runs — releases the
+          attached terminal, leaving SESSION running.
+
+  2. `\; attach -t SESSION`
+     The `\;` is a tmux multi-command separator. After new-window completes,
+     the same tmux invocation attaches the user to SESSION. They land in
+     the most-recently-created window (the peek window).
+
+VERIFICATION (throwaway session ephemeral-final, real tmux):
+
+  $ tmux new-session -d -s ephemeral-final
+  $ tmux send-keys -t ephemeral-final:0 'while true; do echo "[$(date +%T)] alive"; sleep 1; done' Enter
+  $ tmux list-panes -t ephemeral-final:0 -F '#{pane_pid}'
+  17318  ← parent pid (the busy-loop zsh)
+
+  --- run the wrapper (sans attach since this script is non-TTY) ---
+  $ tmux new-window -t ephemeral-final -n peek 'echo Welcome…; $SHELL; tmux detach-client'
+
+  $ tmux list-windows -t ephemeral-final
+  0: zsh- (1 panes) [120x29] @60
+  1: peek* (1 panes) [120x29] @61 (active)
+  ← peek window created beside parent. peek is the active window for new clients.
+
+  --- send 'exit' to the peek window's shell ---
+  $ tmux send-keys -t ephemeral-final:peek 'exit' Enter
+
+  $ tmux list-windows -t ephemeral-final
+  0: zsh* (1 panes) [120x29] @60 (active)
+  ← peek window gone; session has only the original window.
+
+  $ tmux list-panes -t ephemeral-final:0 -F '#{pane_pid}'
+  17318  ← SAME pid as before. The busy-loop process never restarted.
+
+  $ tmux list-sessions | grep ephemeral-final
+  ephemeral-final: 1 windows  ← session alive.
+
+CHECKS AGAINST FOREMAN'S CHECKLIST:
+
+  ✅ Peek window named recognizably
+     The window is literally named "peek" (visible in `tmux list-windows`,
+     in the tmux status bar at the bottom of the user's terminal, and in
+     the welcome banner inside the pane).
+
+  ✅ exit/Ctrl-D in peek does NOT cascade to parent session
+     Verified above. Parent pid 17318 → 17318. Session still has 1 window.
+
+  ✅ detach-client cleanly releases the user's terminal
+     Verified earlier in `e2e-test`: `script -q /dev/null bash -c '<wrapper>'`
+     exited with status 0 after the shell-exit-then-detach-client sequence
+     completed. No stray attached client; `tmux list-clients` returned empty
+     for the test session.
+
+  ✅ Tested on a session with real running content
+     ephemeral-final's busy-loop process was not restarted by the
+     attach/exit cycle. Same parent pid throughout.
+
+CONTRAST WITH PRIOR -r APPROACH (REJECTED):
+
+  `tmux attach -r -t SESSION` makes the entire client read-only — Joshua
+  reported he couldn't even Ctrl-C, scroll, or do anything except exit
+  the host terminal application. This wrapper restores full interactivity
+  while keeping the session-survival guarantee.
+
+EDGE CASE ACKNOWLEDGED (NOT MITIGATED):
+
+  If the user inside the peek window does Ctrl-b 0 to navigate to the
+  session window, then types `exit` IN THE SESSION'S OWN PANE, that
+  session's pane dies — taking the session with it. This is a fundamental
+  tmux invariant (a shell exits → the pane dies; the only-pane-in-the-only-
+  window dies → window dies → session dies).
+
+  Mitigation considered: `tmux select-pane -d` on the session pane would
+  block input. REJECTED because pane_input_off=1 also blocks `tmux send-keys`
+  from external processes — homestead's web-terminal uses send-keys to
+  drive claude, so disabling input would break the platform's primary control
+  channel for the session.
+
+  The peek window is the recommended affordance. Naming + banner make it
+  clear which is which.

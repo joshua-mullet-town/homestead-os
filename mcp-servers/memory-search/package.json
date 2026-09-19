@@ -1,0 +1,16 @@
+{
+  "name": "steward-memory-search",
+  "version": "1.0.0",
+  "description": "MCP server for searching Steward's memory files",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "wink-bm25-text-search": "^2.0.0"
+  }
+}

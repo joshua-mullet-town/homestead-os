@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Presenter Notch</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: transparent;
+      height: 100vh;
+      overflow: hidden;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 2px;
+    }
+
+    /* ---- Theme palette ----------------------------------------------------
+       The collapsed pill mirrors the main renderer's reading-mode themes.
+       Default (no data-theme, or data-theme="off") = the original
+       "video-game" look: VT323 font, neon orange #FF6600, near-black pill.
+       Each reading-mode preset remaps the --pill-* vars below to palette
+       values pulled verbatim from renderer/style.css so the pill matches the
+       rest of the presenter UI exactly. Rules reference --pill-* only, so a
+       new preset is just one more [data-theme="X"] block. */
+    .pill {
+      --pill-font: 'VT323', monospace;
+      --pill-bg: rgba(10, 10, 10, 0.92);
+      --pill-bg-hover: rgba(30, 30, 30, 0.95);
+      --pill-bg-active: rgba(50, 50, 50, 0.95);
+      --pill-border: #333;
+      --pill-border-hover: #FF6600;
+      --pill-accent: #FF6600;          /* icon + badge bg */
+      --pill-badge-fg: #000;           /* badge text on accent */
+      --pill-zero-bg: #333;            /* zero-count badge bg */
+      --pill-zero-fg: #555;            /* zero-count badge text */
+    }
+
+    /* Iowa — warm cream/parchment. */
+    .pill[data-theme="iowa"] {
+      --pill-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --pill-bg: #FAF5EC;
+      --pill-bg-hover: #EFE4CD;
+      --pill-bg-active: #E0D7C4;
+      --pill-border: #D0C4AE;
+      --pill-border-hover: #7A5C3E;
+      --pill-accent: #7A5C3E;
+      --pill-badge-fg: #F4EFE6;
+      --pill-zero-bg: #EFE4CD;
+      --pill-zero-fg: #7A6B55;
+    }
+
+    /* Gruvbox Dark Medium — Josh's steer: greens + dark browns, NOT orange.
+       Warm dark-brown chrome (bg/border browner than the iconic gray-brown)
+       with a Gruvbox forest-green accent (#8EC07C, the palette's bright-aqua
+       green) on the ▼ + badge. Echoes the warmth of the Iowa beige/brown pill
+       he liked, in Gruvbox's earthy green/brown register. */
+    .pill[data-theme="gruvbox"] {
+      --pill-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --pill-bg: #3C3530;          /* warm dark brown */
+      --pill-bg-hover: #4A423B;
+      --pill-bg-active: #32302F;
+      --pill-border: #7C6F64;      /* gruvbox brown */
+      --pill-border-hover: #8EC07C;
+      --pill-accent: #8EC07C;      /* gruvbox forest green */
+      --pill-badge-fg: #282520;    /* dark brown text on green */
+      --pill-zero-bg: #504945;
+      --pill-zero-fg: #A89984;
+    }
+
+    /* Gruvbox Hard — near-black variant, same forest-green accent. */
+    .pill[data-theme="gruvbox-hard"] {
+      --pill-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --pill-bg: #282828;
+      --pill-bg-hover: #3C3530;
+      --pill-bg-active: #1D2021;
+      --pill-border: #504945;      /* gruvbox brown-gray */
+      --pill-border-hover: #8EC07C;
+      --pill-accent: #8EC07C;      /* gruvbox forest green */
+      --pill-badge-fg: #1D2021;
+      --pill-zero-bg: #3C3836;
+      --pill-zero-fg: #BDAE93;
+    }
+
+    .pill {
+      font-family: var(--pill-font);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding: 4px 14px 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      -webkit-app-region: no-drag;
+    }
+    .pill:hover {
+      background: var(--pill-bg-hover);
+      border-color: var(--pill-border-hover);
+    }
+    .pill:active {
+      background: var(--pill-bg-active);
+    }
+    .icon {
+      color: var(--pill-accent);
+      font-size: 16px;
+    }
+    .badge {
+      background: var(--pill-accent);
+      color: var(--pill-badge-fg);
+      font-size: 14px;
+      font-weight: bold;
+      min-width: 18px;
+      height: 18px;
+      line-height: 18px;
+      text-align: center;
+      border-radius: 9px;
+      padding: 0 5px;
+    }
+    .badge.zero {
+      background: var(--pill-zero-bg);
+      color: var(--pill-zero-fg);
+    }
+  </style>
+</head>
+<body>
+  <div class="pill" id="pill" title="Expand Presenter">
+    <span class="icon">&#x25BC;</span>
+    <span class="badge" id="badge">0</span>
+  </div>
+  <script>
+    const badge = document.getElementById('badge');
+    const pill = document.getElementById('pill');
+
+    pill.addEventListener('click', () => {
+      window.presenterBar.expand();
+    });
+
+    window.presenterBar.onQueueCount((count) => {
+      badge.textContent = count;
+      badge.classList.toggle('zero', count === 0);
+    });
+
+    // Theme plumbed from main.js (mirrors the queue-count IPC path). The main
+    // renderer's reading-mode preset ('off' | 'iowa' | 'gruvbox' |
+    // 'gruvbox-hard') is pushed here on startup and on every live theme change.
+    // 'off'/null → no data-theme attr → the default video-game palette.
+    window.presenterBar.onTheme((preset) => {
+      if (preset && preset !== 'off') {
+        pill.setAttribute('data-theme', preset);
+      } else {
+        pill.removeAttribute('data-theme');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>One Type Box — test it</title>
+<style>
+  :root{
+    --bg:#0e0e0e; --panel:#161616; --line:#2a2a2a; --text:#eaeaea;
+    --dim:#9a9a9a; --accent:#FF6600; --good:#39d353; --bad:#ff5555;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    padding:20px 16px calc(40px + env(safe-area-inset-bottom,0px));
+    -webkit-text-size-adjust:100%;
+  }
+  h1{font-size:23px;margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--dim);font-size:14px;margin:0 0 20px}
+  .banner{
+    background:linear-gradient(180deg,#1c1408,#181206);
+    border:1px solid #4a3410;border-left:3px solid var(--accent);
+    border-radius:10px;padding:13px 15px;margin:0 0 22px;
+  }
+  .banner b{color:var(--accent)}
+  .cta{
+    display:block;text-align:center;background:var(--accent);color:#140a00;
+    font-weight:700;font-size:17px;text-decoration:none;padding:16px;
+    border-radius:11px;margin:0 0 8px;
+  }
+  .cta-note{text-align:center;color:var(--dim);font-size:13px;margin:0 0 26px}
+  h2{font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);
+     margin:30px 0 12px;font-weight:600}
+  ol{list-style:none;padding:0;margin:0;counter-reset:s}
+  li{
+    counter-increment:s;background:var(--panel);border:1px solid var(--line);
+    border-radius:11px;padding:14px 15px 14px 52px;margin-bottom:9px;position:relative;
+    cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .13s,background .13s;
+  }
+  li::before{
+    content:counter(s);position:absolute;left:14px;top:13px;width:25px;height:25px;
+    border-radius:50%;background:#252525;border:1px solid #3a3a3a;color:var(--dim);
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    transition:all .13s;
+  }
+  li.done{border-color:#1d5c2c;background:#101a12}
+  li.done::before{content:"✓";background:var(--good);border-color:var(--good);color:#062a10}
+  li.done .what{text-decoration:line-through;opacity:.5}
+  .what{font-weight:600;display:block;margin-bottom:3px}
+  .expect{color:var(--dim);font-size:14px;display:block}
+  .expect em{color:var(--good);font-style:normal;font-weight:600}
+  .shots{display:grid;gap:14px;margin:0 0 8px}
+  @media(min-width:620px){.shots{grid-template-columns:1fr 1fr}}
+  figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  figure img{width:100%;display:block;background:#000}
+  figcaption{padding:10px 13px;font-size:13px;color:var(--dim);border-top:1px solid var(--line)}
+  figcaption b{display:block;font-size:14px;margin-bottom:2px}
+  .before figcaption b{color:var(--bad)}
+  .after figcaption b{color:var(--good)}
+  .metric{
+    display:flex;justify-content:space-between;align-items:baseline;
+    background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:11px 14px;margin-bottom:7px;font-size:14px;
+  }
+  .metric span:last-child{font-weight:700;font-variant-numeric:tabular-nums}
+  .win{color:var(--good)}
+  footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);
+         color:var(--dim);font-size:13px}
+  .reset{background:none;border:1px solid var(--line);color:var(--dim);
+         font-size:12px;padding:7px 13px;border-radius:7px;margin-top:12px;cursor:pointer}
+  #prog{color:var(--dim);font-size:13px;margin:0 0 12px}
+</style>
+</head>
+<body>
+
+<h1>One type box, not two</h1>
+<p class="sub">Tapping TYPE on your phone used to open two typing boxes stacked on each other. Now it opens one.</p>
+
+<div class="banner">
+  <b>Already live.</b> Nothing to install — no app update needed. Just open the presenter and pull down to refresh once.
+</div>
+
+<a class="cta" href="http://joshuas-macbook-air.tail84bb3b.ts.net:3005/presenter">Open the presenter →</a>
+<p class="cta-note">Refresh once, then tap TYPE.</p>
+
+<h2>What you should see</h2>
+<div class="shots">
+  <figure class="before">
+    <img src="before.png" alt="Two typing boxes stacked, both reading &quot;ship it&quot;">
+    <figcaption><b>Before — two boxes</b>Both said the same thing. The extra one ate a band of screen you couldn't use.</figcaption>
+  </figure>
+  <figure class="after">
+    <img src="after.png" alt="One typing box with the card readable above it">
+    <figcaption><b>After — one box</b>Just your phone's typing box. More of the card stays readable.</figcaption>
+  </figure>
+</div>
+
+<h2>The numbers</h2>
+<div class="metric"><span>Typing boxes on screen</span><span>2 → <span class="win">1</span></span></div>
+<div class="metric"><span>Screen space given back</span><span class="win">123 px</span></div>
+<div class="metric"><span>App update required</span><span class="win">None</span></div>
+
+<h2>Check it yourself — tap each when done</h2>
+<p id="prog"></p>
+<ol id="steps">
+  <li data-k="s1"><span class="what">Open the presenter above and refresh once.</span>
+    <span class="expect">Pull down to refresh so it picks up the change.</span></li>
+  <li data-k="s2"><span class="what">Tap TYPE.</span>
+    <span class="expect">You should see <em>exactly one</em> typing box come up with the keyboard — your phone's own. No second box above it.</span></li>
+  <li data-k="s3"><span class="what">Type something.</span>
+    <span class="expect">More of the card should still be readable than before.</span></li>
+  <li data-k="s4"><span class="what">Send it with the send button.</span>
+    <span class="expect">It sends, and the box <em>empties</em> — the clear-after-send you just got still works.</span></li>
+  <li data-k="s5"><span class="what">Type something, then swipe the keyboard away without sending.</span>
+    <span class="expect">Tap TYPE again — your half-typed text should <em>still be there</em>.</span></li>
+  <li data-k="s6"><span class="what">Tap TYPE once more to close it.</span>
+    <span class="expect">Everything closes normally, same as always.</span></li>
+</ol>
+
+<footer>
+  If any step goes sideways, reply on the card and say which number — that tells me exactly where to look.
+  <br><button class="reset" id="reset">Clear my checkmarks</button>
+</footer>
+
+<script>
+// Keep Josh's place: which steps he's checked, and where he'd scrolled.
+// He should be able to close this and come back to exactly where he was.
+(function () {
+  var KEY = 'one-typebox-test-2026-09-03';
+  var steps = Array.prototype.slice.call(document.querySelectorAll('#steps li'));
+  var prog = document.getElementById('prog');
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+  }
+  function save(s) {
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+  }
+  var state = load();
+
+  function paint() {
+    var n = 0;
+    steps.forEach(function (li) {
+      var on = !!state[li.dataset.k];
+      li.classList.toggle('done', on);
+      if (on) n++;
+    });
+    prog.textContent = n + ' of ' + steps.length + ' checked' + (n === steps.length ? ' — all done, thank you!' : '');
+  }
+
+  steps.forEach(function (li) {
+    li.addEventListener('click', function () {
+      state[li.dataset.k] = !state[li.dataset.k];
+      save(state); paint();
+    });
+  });
+
+  document.getElementById('reset').addEventListener('click', function () {
+    state = {}; save(state); paint();
+  });
+
+  // Restore scroll position, and remember it as he reads.
+  var SK = KEY + ':scroll';
+  try {
+    var y = parseInt(localStorage.getItem(SK) || '0', 10);
+    if (y > 0) window.scrollTo(0, y);
+  } catch (e) {}
+  var t = null;
+  window.addEventListener('scroll', function () {
+    clearTimeout(t);
+    t = setTimeout(function () {
+      try { localStorage.setItem(SK, String(window.scrollY)); } catch (e) {}
+    }, 150);
+  }, { passive: true });
+
+  paint();
+})();
+</script>
+</body>
+</html>

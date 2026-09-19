@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Homestead" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#FF6600</item>
+        <item name="colorPrimaryVariant">#CC5200</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="colorSecondary">#FFCC00</item>
+        <item name="colorSecondaryVariant">#E6B800</item>
+        <item name="colorOnSecondary">#000000</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowShowWallpaper">true</item>
+        <!-- AOSP's own Theme.Wallpaper sets this; without it the framework may
+             cache an opaque background behind the window. -->
+        <item name="android:colorBackgroundCacheHint">@null</item>
+    </style>
+
+    <!-- Video game styled dialog -->
+    <style name="Theme.Homestead.Dialog" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:background">#1A1A1A</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:windowBackground">#1A1A1A</item>
+        <item name="colorPrimary">#FF6600</item>
+        <item name="colorAccent">#FFCC00</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Theme.Homestead.Dialog.Button</item>
+    </style>
+
+    <style name="Theme.Homestead.Dialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">#FFCC00</item>
+    </style>
+</resources>

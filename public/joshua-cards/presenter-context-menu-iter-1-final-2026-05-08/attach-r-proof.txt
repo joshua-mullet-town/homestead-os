@@ -1,0 +1,43 @@
+=== tmux attach -r read-only proof transcript ===
+Date: 2026-05-08 17:11Z
+Operator: holler-homestead--foreman--presenter-context-menu-and-tmux-view
+tmux version: 3.5a
+
+Setup:
+  $ tmux new-session -d -s ephemeral-attach-r-test 'while true; do echo "claude-sim: $(date)"; sleep 2; done'
+  $ tmux list-sessions | grep ephemeral-attach-r-test
+  ephemeral-attach-r-test: 1 windows (created Fri May  8 17:11:24 2026)
+
+Test 1: attach with -r flag, inspect client flags:
+  $ script -q /dev/null tmux attach-session -r -t ephemeral-attach-r-test &
+  $ tmux list-clients -t ephemeral-attach-r-test -F "client_tty=#{client_tty} flags=#{client_flags}"
+  client_tty=/dev/ttys033 flags=attached,focused,ignore-size,read-only,UTF-8
+
+  ↑ "read-only" flag confirmed in client_flags.
+
+Test 2: attach WITHOUT -r for contrast:
+  $ script -q /dev/null tmux attach-session -t ephemeral-attach-r-test &
+  $ tmux list-clients -t ephemeral-attach-r-test -F "client_tty=#{client_tty} flags=#{client_flags} read-only=#{client_readonly}"
+  client_tty=/dev/ttys033 flags=attached,focused,ignore-size,read-only,UTF-8 read-only=1
+  client_tty=/dev/ttys036 flags=attached,focused,UTF-8                       read-only=0
+
+  ↑ Read-only client has read-only=1; bare-attach client has read-only=0. Diagnostic split clean.
+
+Test 3: kill all attached clients, verify session survives:
+  $ kill $SCRIPT_PID $SCRIPT2_PID
+  $ tmux list-sessions | grep ephemeral-attach-r-test
+  ephemeral-attach-r-test: 1 windows (created Fri May  8 17:11:24 2026)
+
+  ↑ Session alive after both detach/disconnect cycles.
+
+Per `man tmux` line 602:
+  "-r is an alias for -f read-only,ignore-size. When a client is
+   read-only, only keys bound to the detach-client or switch-client
+   commands have any effect."
+
+Therefore: typing 'exit' or Ctrl-D in a -r-attached client cannot reach
+the pane. The keystroke is silently swallowed. Only detach (Ctrl-b d) and
+switch-client bindings respond.
+
+Conclusion: 'tmux attach -r -t SESSION' is structurally non-murderous.
+Reflexive exit / Ctrl-D / typing in the shell does NOT kill the session.

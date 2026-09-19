@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Whisper Village — Meeting Cheat Sheet</title>
+<style>
+  :root {
+    --bg: #0f1216;
+    --panel: #171b22;
+    --panel-2: #1f242d;
+    --ink: #e8ecf2;
+    --ink-dim: #9aa4b2;
+    --accent: #ffb547;
+    --accent-soft: #2a2116;
+    --rule: #2a2f3a;
+    --good: #7dd47f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+  body { font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; padding: 28px 24px 80px; max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  h2 { font-size: 18px; margin: 28px 0 10px; color: var(--accent); letter-spacing: 0.02em; text-transform: uppercase; font-weight: 700; }
+  h3 { font-size: 15px; margin: 14px 0 6px; color: var(--ink); }
+  .sub { color: var(--ink-dim); margin: 0 0 18px; }
+  .panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .panel.warn { background: var(--accent-soft); border-color: #544022; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  .chip { display: inline-block; background: var(--panel-2); color: var(--ink); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 10px; font-size: 12px; margin: 2px 4px 2px 0; }
+  ul { margin: 6px 0 6px 18px; padding: 0; }
+  li { margin: 4px 0; }
+  code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+  .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: #000; color: var(--accent); padding: 1px 6px; border-radius: 4px; font-size: 12px; border: 1px solid var(--rule); }
+  .q { font-weight: 700; color: var(--ink); margin-top: 10px; }
+  .a { color: var(--ink-dim); margin: 2px 0 0; }
+  .pitch { font-size: 17px; line-height: 1.5; }
+  .flow { counter-reset: step; padding-left: 0; list-style: none; }
+  .flow li { counter-increment: step; padding-left: 34px; position: relative; margin: 8px 0; }
+  .flow li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: var(--accent); color: #000; border-radius: 50%; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+  .tag { font-size: 11px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+  .truth { border-left: 3px solid var(--good); padding-left: 12px; }
+  .mini { font-size: 13px; color: var(--ink-dim); }
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 26px 0; }
+</style>
+</head>
+<body>
+
+<h1>Whisper Village — Cheat Sheet</h1>
+<p class="sub">Meeting reference · glance-friendly · honest answers only</p>
+
+<div class="panel pitch">
+  <span class="tag">What it is, in one breath</span><br />
+  <strong>Whisper Village</strong> is a native macOS menu-bar app that turns your voice into text — entirely on-device, no cloud. You hold a hotkey, talk, release, and the transcript pastes at your cursor in whatever app you're in (terminal, editor, email). Built for keyboard-driven power users who want fast, private dictation.
+</div>
+
+<div class="panel warn truth">
+  <span class="tag">The honest origin (don't hide this)</span><br />
+  Whisper Village is a <strong>fork of <a style="color:var(--accent)" href="https://github.com/Beingpax/VoiceInk">VoiceInk by Pax (@Beingpax)</a></strong>. Our README attributes this clearly. Core transcription/hotkey/paste logic is VoiceInk's. We rebranded it, restyled the UI, relicensed it GPL v3, and wired it into the Mullet Town ecosystem. <em>Not a novel invention — a customized, shipped, working tool on a proven open-source base.</em>
+</div>
+
+<h2>Tech stack</h2>
+<div class="panel">
+  <span class="chip">Swift 5 + SwiftUI</span>
+  <span class="chip">macOS 14+ (Xcode)</span>
+  <span class="chip">whisper.cpp (C++ inference)</span>
+  <span class="chip">Parakeet via FluidAudio</span>
+  <span class="chip">AVAudioEngine</span>
+  <span class="chip">SwiftData (local history)</span>
+  <span class="chip">UserDefaults (settings)</span>
+  <span class="chip">KeyboardShortcuts</span>
+  <span class="chip">Sparkle (auto-update)</span>
+  <span class="chip">Accessibility / AX API</span>
+  <span class="chip">AppKit / Core Audio</span>
+  <p class="mini" style="margin-top:10px">Zero servers, zero cloud calls during transcription. Everything runs on the Mac's CPU using quantized Whisper models bundled or downloaded locally.</p>
+</div>
+
+<h2>The big pieces (what's on the whiteboard)</h2>
+
+<div class="grid">
+  <div class="panel">
+    <h3>1. Audio capture</h3>
+    <p class="mini"><code>Recorder.swift</code>, <code>StreamingRecorder.swift</code>, <code>AudioDeviceManager.swift</code></p>
+    <p>Grabs mic input at 16 kHz mono. Handles device changes, levels, pause/resume. Two modes: buffered file recording vs. live streaming for interim preview.</p>
+  </div>
+
+  <div class="panel">
+    <h3>2. Transcription engines</h3>
+    <p class="mini"><code>Whisper/LibWhisper.swift</code>, <code>LocalTranscriptionService.swift</code>, <code>ParakeetTranscriptionService.swift</code></p>
+    <p>Two pluggable engines behind a <code>TranscriptionModel</code> protocol: <strong>whisper.cpp</strong> (most accurate, multiple model sizes) or <strong>Parakeet</strong> (faster, lighter). Whisper context is a Swift actor — thread-safe.</p>
+  </div>
+
+  <div class="panel">
+    <h3>3. Hotkey & paste</h3>
+    <p class="mini"><code>HotkeyManager.swift</code>, <code>CursorPaster.swift</code></p>
+    <p>Global hotkey (default <span class="kbd">Fn</span>), configurable. Double-tap for "send it" (paste + Enter), hold-to-record hands-free mode. Paste = copy to clipboard → synthesize <span class="kbd">⌘V</span> via CGEvent.</p>
+  </div>
+
+  <div class="panel">
+    <h3>4. UI / menu bar</h3>
+    <p class="mini"><code>ContentView.swift</code>, <code>MenuBarView.swift</code>, <code>MenuBarManager.swift</code></p>
+    <p>Menu-bar icon is always-on control. Main window has model picker, hotkey editor, history, cumulative stats. Optional floating "notch" shows interim transcription while you talk.</p>
+  </div>
+
+  <div class="panel">
+    <h3>5. Storage & settings</h3>
+    <p class="mini"><code>UserDefaultsManager.swift</code>, <code>Models/Transcription.swift</code></p>
+    <p><strong>SwiftData</strong> (Apple's modern SQLite wrapper) for transcription history. <strong>UserDefaults</strong> for settings and stats. <strong>File system</strong> for downloaded model <code>.bin</code>s. All local, no sync.</p>
+  </div>
+
+  <div class="panel">
+    <h3>6. Post-processing</h3>
+    <p class="mini"><code>WhisperTextFormatter.swift</code></p>
+    <p>Strips filler words (uh, um), auto-capitalizes, adds end punctuation, applies user's word-replacement dictionary and prompt hints before pasting.</p>
+  </div>
+
+  <div class="panel">
+    <h3>7. App lifecycle & distribution</h3>
+    <p class="mini"><code>WhisperVillage.swift</code>, <code>AppDelegate.swift</code>, <code>scripts/ship-it.sh</code></p>
+    <p>SwiftUI <code>@main</code> boot. Requests mic + accessibility permissions. Ships as a DMG. <strong>Sparkle</strong> polls an <code>appcast.xml</code> on GitHub for updates. Signed with a self-signed cert so permissions persist across updates.</p>
+  </div>
+</div>
+
+<h2>Data flow — what happens when you dictate</h2>
+<div class="panel">
+  <ol class="flow">
+    <li>User presses hotkey → <code>HotkeyManager</code> global monitor fires → <code>WhisperState.toggleRecording()</code>.</li>
+    <li>Recorder opens the mic at 16 kHz mono, pushes samples into a buffer; UI flips to "recording", meter animates.</li>
+    <li><em>Optional:</em> streaming buffer feeds Parakeet for a live interim preview in the notch box.</li>
+    <li>User releases hotkey → recording stops → buffered samples flushed.</li>
+    <li>Samples handed to the active engine (whisper.cpp or Parakeet). Engine returns plain text.</li>
+    <li>Formatter cleans it (capitalize, punctuate, strip fillers, apply word rules).</li>
+    <li>Text → clipboard → synthesized <span class="kbd">⌘V</span> → lands at the cursor in whatever app is focused.</li>
+    <li>Transcription saved to SwiftData history; cumulative word/session counters bumped in UserDefaults.</li>
+  </ol>
+</div>
+
+<h2>Deployment / how it ships</h2>
+<div class="panel">
+  <ul>
+    <li><strong>No backend.</strong> No servers, no databases, no cloud. Distribution-only.</li>
+    <li><strong>Format:</strong> Signed <code>.dmg</code>. Users drag app to Applications. First launch may require <code>xattr -cr</code> to clear Gatekeeper quarantine.</li>
+    <li><strong>Builds:</strong> <code>scripts/dev.sh</code> for debug; <code>scripts/ship-it.sh &lt;ver&gt; "notes"</code> bumps version, compiles Release, packages DMG, pushes to GitHub, updates <code>appcast.xml</code>.</li>
+    <li><strong>Updates:</strong> Sparkle framework reads <code>appcast.xml</code> from GitHub raw URL, offers in-app update, installs on user approval.</li>
+    <li><strong>Permissions required at runtime:</strong> microphone, accessibility (to synthesize keystrokes + detect focused app). No network permission needed for transcription.</li>
+  </ul>
+</div>
+
+<h2>Likely questions — honest answers you can say aloud</h2>
+
+<div class="panel">
+  <p class="q">How does the transcription actually work?</p>
+  <p class="a">Audio is captured at 16 kHz mono. On stop, the samples go to whisper.cpp, which is a C++ port of OpenAI's Whisper model running locally. The model outputs text; we clean it up and paste it. Nothing leaves the device.</p>
+
+  <p class="q">Is it using the OpenAI API?</p>
+  <p class="a">No. It's the open-source Whisper model running on-device via whisper.cpp. There's no API call, no API key, no internet dependency for transcription.</p>
+
+  <p class="q">What's the database?</p>
+  <p class="a">SwiftData — Apple's modern SQLite wrapper. It stores a local transcription history (text, timestamp, model used, word count). No cloud sync.</p>
+
+  <p class="q">How does it scale?</p>
+  <p class="a">It's a single-user desktop app, so "scale" isn't quite the right frame. Per-user performance depends on model size — Whisper Tiny is fast, Whisper Base is the balanced default. Everything runs on the user's CPU.</p>
+
+  <p class="q">What about privacy?</p>
+  <p class="a">Audio never leaves the device. There's no telemetry, no server, no account. That's actually one of the selling points vs. cloud dictation tools.</p>
+
+  <p class="q">Why Swift / SwiftUI?</p>
+  <p class="a">It's a macOS-only app and native is the cleanest path: tight menu-bar integration, native accessibility APIs, native audio stack. Same reason the upstream project chose it.</p>
+
+  <p class="q">Did you write all of this?</p>
+  <p class="a">Honestly — it's a fork of VoiceInk, attributed in the README. I rebranded it, restyled it, relicensed it GPL v3, and shaped it for our ecosystem. Core transcription/hotkey/paste logic is upstream's. That's a totally legitimate way to ship a working tool, and we're open about it.</p>
+
+  <p class="q">Can users add their own vocabulary?</p>
+  <p class="a">Yes — settings has a word-replacement dictionary and a "prompt hints" field that gets passed into Whisper for better context (helpful for jargon, names, acronyms).</p>
+
+  <p class="q">How do updates work?</p>
+  <p class="a">Sparkle framework — industry-standard for macOS. The app polls an <code>appcast.xml</code> on GitHub, downloads, and installs on user approval. Self-signed cert ensures permissions persist across updates.</p>
+
+  <p class="q">Whisper.cpp — is that a real thing?</p>
+  <p class="a">Yes — it's the standard high-performance C++ port of Whisper by Georgi Gerganov (same author as llama.cpp). Huge ecosystem, well-maintained.</p>
+</div>
+
+<hr />
+
+<h2>One-line elevator pitch (for hallway conversation)</h2>
+<div class="panel">
+  <p class="pitch">"It's an on-device dictation app for Mac — menu bar, hotkey, paste at cursor. Built on VoiceInk (open source) with whisper.cpp running locally, so audio never leaves the machine. I forked it, rebranded it for our ecosystem, and wired up our own release / auto-update pipeline."</p>
+</div>
+
+<p class="mini" style="text-align:center; margin-top:36px;">You've got this. Be direct, credit the upstream, show the working app.</p>
+
+</body>
+</html>

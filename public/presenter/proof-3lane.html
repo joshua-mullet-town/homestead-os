@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3-Lane Cards — Proof</title>
+<style>
+  body { margin:0; background:#0b0b0b; color:#eee; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; padding:18px; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:#888; font-size:13px; margin:0 0 20px; }
+  h2 { font-size:15px; margin:26px 0 10px; color:#ffb000; }
+  .seclabel { font-size:11px; text-transform:uppercase; letter-spacing:.6px; margin:14px 4px 8px; }
+  .fyi-l { color:#666; }
+  .weigh-l { color:#e6b43c; font-weight:700; }
+  .blocked-l { color:#FF6600; font-weight:700; }
+  .row { display:flex; gap:10px; align-items:flex-start; padding:11px; border-radius:11px; margin-bottom:8px; }
+  .row .ico { font-size:18px; }
+  .row .who { font-size:11px; font-weight:800; margin-bottom:2px; }
+  .row .txt { font-size:14px; line-height:1.4; }
+  .fyi { background:#111; }
+  .fyi .who { color:#888; } .fyi .txt { color:#ccc; }
+  .weigh { background:#17140a; border:1px solid rgba(230,180,60,.28); }
+  .weigh .who { color:#e6b43c; } .weigh .txt { color:#f2e6c8; }
+  .blocked { background:#1a1206; border:1px solid rgba(255,102,0,.35); }
+  .blocked .who { color:#FF6600; } .blocked .txt { color:#fff; }
+  .err { background:#160a0a; border:1px solid rgba(255,80,80,.35); border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .err .case { color:#ff8a8a; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+  .err .msg { color:#f4d0d0; font-size:13px; line-height:1.45; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .note { color:#777; font-size:12px; margin-top:6px; }
+  a.live { display:inline-block; margin-top:8px; color:#7ab8ff; font-size:14px; }
+</style>
+</head>
+<body>
+  <h1>3-Lane Cards — shipped &amp; proven</h1>
+  <p class="sub">Presenter cards now carry three lanes on your "does this invite you?" axis. Status is hard-required — a card with no status is rejected, no more silent "fyi." The docket renders off the submitted status + recap, not the card title.</p>
+
+  <h2>1. The three lanes, rendering off the recap (not the title)</h2>
+  <div class="seclabel fyi-l">FYI — frees you (nothing to do)</div>
+  <div class="row fyi"><span class="ico">🪦</span><div><div class="who">volume-pilot</div><div class="txt">Volume-discount pilot handed off — nothing needed, just closing the loop.</div></div></div>
+
+  <div class="seclabel weigh-l">◐ WEIGH IN — invites you (moving, but you'd want to steer)</div>
+  <div class="row weigh"><span class="ico">🏛️</span><div><div class="who">pricing-deck</div><div class="txt">Draft of the pricing deck is up — moving ahead, but wave me off if the tone's wrong.</div></div></div>
+
+  <div class="seclabel blocked-l">● BLOCKED — requires you (can't proceed without your call)</div>
+  <div class="row blocked"><span class="ico">🪦</span><div><div class="who">sku-name</div><div class="txt">Which name do you want for the store — Vault or Reserve? I can't ship the SKU until you pick.</div></div></div>
+  <p class="note">This mirrors exactly what the live docket now shows. See it live: <a class="live" href="/presenter/index.html?embedded=true">Open the live docket →</a></p>
+
+  <h2>2. The hard-required error actually fires</h2>
+  <p class="sub" style="margin-top:-4px">Captured live from the real present_to_user code path. Each of these is a card that got REJECTED before it could reach you:</p>
+  <div class="err"><div class="case">Card sent with NO status</div><div class="msg">status is required — pick one lane: blocked | weigh_in | fyi. (blocked = I can't proceed without you; weigh_in = I'm moving but you'd want to steer; fyi = nothing to do.)</div></div>
+  <div class="err"><div class="case">Card sent with NO recap</div><div class="msg">recap is required — a short line matching your lane: blocked = what you need from Josh; weigh_in = what to weigh in on; fyi = a short recap of what this is + where it stands.</div></div>
+  <div class="err"><div class="case">Card sent with a bogus status</div><div class="msg">status must be one of blocked | weigh_in | fyi — got "urgent_pls".</div></div>
+  <p class="note">The old behavior — silently defaulting a statusless card to "fyi" — is gone. A sender must pick a lane, every time.</p>
+</body>
+</html>

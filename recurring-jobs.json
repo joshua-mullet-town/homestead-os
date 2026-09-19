@@ -1,0 +1,244 @@
+{
+  "jobs": [
+    {
+      "id": "memory-harvester",
+      "type": "memory-harvester",
+      "cron": "*/30 * * * *",
+      "config": {
+        "minutes": 30
+      },
+      "enabled": true,
+      "created_at": "2026-02-04T06:52:04.940Z"
+    },
+    {
+      "id": "memory-consolidator",
+      "type": "memory-consolidator",
+      "cron": "0 6 * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-02-04T13:05:00.000Z"
+    },
+    {
+      "id": "ephemeral-cleanup",
+      "type": "ephemeral-cleanup",
+      "cron": "*/10 * * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-02-11T13:20:00.000Z"
+    },
+    {
+      "id": "card-links-cleanup",
+      "type": "card-links-cleanup",
+      "cron": "25 4 * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-09-09T21:20:03.858Z"
+    },
+    {
+      "id": "memory-commit",
+      "type": "memory-commit",
+      "cron": "0 */6 * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-02-15T19:32:00.000Z"
+    },
+    {
+      "id": "steward-commit",
+      "type": "steward-commit",
+      "cron": "0 * * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-02-23T22:30:00.000Z"
+    },
+    {
+      "id": "system-health-check",
+      "type": "script",
+      "cron": "7-59/15 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/run-health-checks.sh"
+      },
+      "enabled": true,
+      "created_at": "2026-03-06T01:59:04.661Z"
+    },
+    {
+      "id": "location-reminder-check",
+      "type": "location-reminder",
+      "cron": "* * * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-03-22T04:23:00.000Z"
+    },
+    {
+      "id": "notification-check",
+      "type": "notification-check",
+      "cron": "*/5 * * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-03-23T12:30:00.000Z"
+    },
+    {
+      "id": "rooster-calendar-upcoming-check",
+      "type": "script",
+      "cron": "*/5 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-calendar-upcoming.js"
+      },
+      "enabled": true,
+      "created_at": "2026-08-15T15:07:00.000Z"
+    },
+    {
+      "id": "phone-network-alarm",
+      "type": "script",
+      "cron": "*/5 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-phone-network.sh"
+      },
+      "enabled": true,
+      "created_at": "2026-08-05T15:55:00.000Z"
+    },
+    {
+      "id": "check-idle-stewards",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-idle-stewards.js"
+      },
+      "enabled": false,
+      "created_at": "2026-05-04T17:30:00.000Z"
+    },
+    {
+      "id": "watchdog-health",
+      "type": "script",
+      "cron": "*/2 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-watchdog-health.sh"
+      },
+      "enabled": true,
+      "created_at": "2026-04-23T17:45:00.000Z"
+    },
+    {
+      "id": "rooster-vitals-threshold-check",
+      "type": "script",
+      "cron": "*/2 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/scripts/threshold-check.sh"
+      },
+      "enabled": false,
+      "created_at": "2026-04-25T00:20:00.000Z"
+    },
+    {
+      "id": "rooster-claude-code-release-watch",
+      "type": "script",
+      "cron": "0 14 */2 * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/scripts/claude-code-release-watch.sh"
+      },
+      "enabled": true,
+      "created_at": "2026-04-25T14:30:00.000Z"
+    },
+    {
+      "id": "rooster-sleep-idle-stewards",
+      "type": "script",
+      "cron": "*/5 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/scripts/sleep-idle-stewards.sh"
+      },
+      "enabled": false,
+      "created_at": "2026-04-26T22:55:00.000Z"
+    },
+    {
+      "id": "rooster-watchdog-classifier",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/workers/watchdog/frozen-watcher.py"
+      },
+      "enabled": true,
+      "created_at": "2026-05-05T13:00:00.000Z",
+      "_note": "2026-08-04: repointed from pane-classifier/watchdog-classifier.py to frozen-watcher.py to end DeepInfra 402-churn (classifier blind on http 402). frozen-watcher does not depend on DeepInfra."
+    },
+    {
+      "id": "rooster-auditor-inbox-consumer",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/lib/consume-auditor-inbox.js"
+      },
+      "enabled": true,
+      "created_at": "2026-06-05T17:30:00.000Z",
+      "_reenabled_note": "2026-08-13: re-enabled after frozen-alarm-delivery-hardening Worker shipped crash-safe consumer (correct INBOX_PATH + incremental offset + single-flight + per-tick cap + rotation). Flood source killed by edge-triggered stale_claim."
+    },
+    {
+      "id": "rooster-sms-alerter",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/workers/watchdog/sms-alerter.py"
+      },
+      "enabled": true,
+      "created_at": "2026-06-22T16:10:00.000Z"
+    },
+    {
+      "id": "rooster-verify-sleep-threshold",
+      "type": "script",
+      "cron": "*/30 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/scripts/verify-sleep-threshold.sh"
+      },
+      "enabled": false,
+      "created_at": "2026-06-29T20:08:00.000Z",
+      "_note": "Temporary verifier for the 1800->14400 sleep-threshold fix (2026-06-29). Walkies holler-rooster with PASS/STILL-WAITING/FAIL/BROKEN. Rooster disables this once PASS is confirmed on a real firing. | DISABLED 2026-06-29 after PASS confirmed (2 real sleeps, idle>=4h). Verifier purpose fulfilled; safe to delete this entry + the script later."
+    },
+    {
+      "id": "steward-resurrect",
+      "type": "steward-resurrect",
+      "cron": "*/5 * * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-07-11T00:00:00.000Z",
+      "_note": "Reactivated 2026-07-11 (was removed 2026-03-24). Revives fully-gone steward/substeward/guest tmux sessions so mid-session crashes auto-recover without a reboot. 5min cadence matches rooster-sleep-idle-stewards. A 90s grace-window absence-ledger in executeStewardResurrect gates revival to prevent tmux-hammering a persistent-crash session."
+    },
+    {
+      "id": "check-context-pressure-stewards",
+      "type": "script",
+      "cron": "*/5 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-context-pressure-stewards.js"
+      },
+      "enabled": true,
+      "created_at": "2026-07-17T23:35:00.000Z",
+      "_reenabled_note": "2026-08-04: RE-ENABLED after ceiling fix. detectCeiling() now reads the real window from ~/.claude/settings.json ('opus[1m]' -> 1M denominator) instead of guessing 200K until a session crosses 200K. Verified: 1M session at 183K reads 18% (no fire); real 200K session at 180K reads 90% (fires); live dry-run fired=0 on 46 sessions."
+    },
+    {
+      "id": "check-compute-suspend-stewards",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-compute-suspend-stewards.js"
+      },
+      "enabled": true,
+      "created_at": "2026-07-18T14:54:00.000Z"
+    },
+    {
+      "id": "check-stalled-workers",
+      "type": "script",
+      "cron": "*/5 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-stalled-workers.js"
+      },
+      "enabled": true,
+      "created_at": "2026-07-18T15:00:00.000Z"
+    },
+    {
+      "id": "shopping-list-reminder",
+      "type": "script",
+      "cron": "0 9 * * 0",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/ping-shopping-list-reminder.js"
+      },
+      "enabled": true,
+      "created_at": "2026-09-06T03:22:20.443Z",
+      "_note": "Weekly Sun 9am America/Indiana/Indianapolis (node-schedule = machine-local TZ, which is Indianapolis). Walkies holler-alfred {trigger:shopping_list_reminder}. Owner: Rooster (scheduler). Consumer: Alfred (owns todos.json shopping read + card + skip-if-empty). Created at Alfred/Josh request 2026-09-06. Same pattern as rooster-calendar-upcoming-check."
+    }
+  ]
+}

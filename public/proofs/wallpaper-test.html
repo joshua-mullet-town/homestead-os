@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Phone-mode wallpaper — test it</title>
+<style>
+  :root {
+    --bg: #12100e;
+    --panel: #1c1917;
+    --panel-2: #232019;
+    --line: #3a332a;
+    --text: #ebdbb2;
+    --dim: #a89984;
+    --orange: #fe8019;
+    --green: #b8bb26;
+    --blue: #83a598;
+    --red: #fb4934;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.55;
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(90px + env(safe-area-inset-bottom, 0px));
+    -webkit-text-size-adjust: 100%;
+  }
+  h1 { font-size: 25px; margin: 0 0 6px; letter-spacing: -0.4px; }
+  .sub { color: var(--dim); margin: 0 0 20px; font-size: 15.5px; }
+
+  .banner {
+    background: linear-gradient(135deg, #3a2a12, #2a2114);
+    border: 1px solid var(--orange); border-radius: 14px;
+    padding: 14px 16px; margin: 0 0 22px;
+  }
+  .banner b { color: var(--orange); }
+
+  .progress-wrap { margin: 0 0 22px; }
+  .bar { height: 9px; background: var(--panel-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+  .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--orange), var(--green)); transition: width .3s ease; }
+  .bar-label { font-size: 13.5px; color: var(--dim); margin-top: 7px; }
+
+  .step {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 15px 16px; margin: 0 0 13px;
+    display: flex; gap: 13px; align-items: flex-start;
+    cursor: pointer; user-select: none; -webkit-user-select: none;
+    transition: border-color .18s, background .18s, opacity .18s;
+  }
+  .step:active { background: var(--panel-2); }
+  .step.done { opacity: .58; border-color: #4a5a2a; }
+  .step.done .step-title { text-decoration: line-through; text-decoration-color: var(--dim); }
+  .box {
+    flex: 0 0 26px; width: 26px; height: 26px; margin-top: 1px;
+    border: 2px solid var(--line); border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 16px; font-weight: 700; color: transparent;
+    transition: all .18s;
+  }
+  .step.done .box { background: var(--green); border-color: var(--green); color: #1d2021; }
+  .step-body { flex: 1; min-width: 0; }
+  .step-title { font-weight: 640; margin-bottom: 3px; }
+  .step-note { color: var(--dim); font-size: 14.5px; }
+
+  h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 1.3px;
+    color: var(--orange); margin: 30px 0 12px; font-weight: 700;
+  }
+
+  .expect {
+    border-left: 3px solid var(--green); background: #1a1d14;
+    padding: 9px 13px; border-radius: 0 9px 9px 0; margin-top: 9px;
+    font-size: 14.5px;
+  }
+  .expect b { color: var(--green); }
+  .wasbad {
+    border-left: 3px solid var(--red); background: #21150f;
+    padding: 9px 13px; border-radius: 0 9px 9px 0; margin-top: 7px;
+    font-size: 14.5px; color: var(--dim);
+  }
+  .wasbad b { color: var(--red); }
+
+  .reset {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    background: var(--panel); color: var(--dim);
+    border: 1px solid var(--line); border-radius: 99px;
+    padding: 11px 22px; font-size: 14.5px; font-family: inherit;
+    box-shadow: 0 6px 22px rgba(0,0,0,.6);
+  }
+  .reset:active { background: var(--panel-2); }
+  .saved-note { text-align: center; color: var(--dim); font-size: 13px; margin-top: 26px; }
+</style>
+</head>
+<body>
+
+<h1>Your wallpaper in phone mode</h1>
+<p class="sub">The one where your son&rsquo;s photo doesn&rsquo;t come back. Tap each line as you go &mdash; this page remembers where you were, even if you close it.</p>
+
+<div class="banner">
+  <b>First:</b> open Homestead on your phone and tap <b>UPDATE</b> on the home screen. Everything below needs the new version.
+</div>
+
+<div class="progress-wrap">
+  <div class="bar"><div class="bar-fill" id="fill"></div></div>
+  <div class="bar-label" id="label">0 of 7 done</div>
+</div>
+
+<h2>The one you actually hit</h2>
+
+<div class="step" data-id="s1">
+  <div class="box">&#10003;</div>
+  <div class="step-body">
+    <div class="step-title">In phone mode, turn the screen off, wait a bit, turn it back on</div>
+    <div class="step-note">This is the closest thing to what you described &mdash; coming back to phone mode after the screen was off.</div>
+    <div class="expect"><b>Should happen:</b> your son&rsquo;s photo is there behind the clock and the apps, straight away.</div>
+    <div class="wasbad"><b>Was happening:</b> the clock and apps drew fine but the background stayed black, so it was hard to read.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s2">
+  <div class="box">&#10003;</div>
+  <div class="step-body">
+    <div class="step-title">In phone mode, open another app, then come back to Homestead</div>
+    <div class="step-note">Any app. Then hit home or swipe back.</div>
+    <div class="expect"><b>Should happen:</b> the photo is behind everything, same as always.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s3">
+  <div class="box">&#10003;</div>
+  <div class="step-body">
+    <div class="step-title">Leave it in phone mode for a while, then pick it up</div>
+    <div class="step-note">An hour, or overnight. This is the real test &mdash; the bug is occasional, so time is what catches it.</div>
+    <div class="expect"><b>Should happen:</b> photo&rsquo;s there.</div>
+  </div>
+</div>
+
+<h2>The thing this could have broken</h2>
+
+<div class="step" data-id="s4">
+  <div class="box">&#10003;</div>
+  <div class="step-body">
+    <div class="step-title">Switch to the Homestead side and look at the background</div>
+    <div class="expect"><b>Should happen:</b> solid black, exactly like it always was. No photo bleeding through, nothing see-through behind your cards.</div>
+    <div class="wasbad"><b>Watch for:</b> if you can faintly see your wallpaper behind the Homestead screen, that&rsquo;s a new problem I caused &mdash; tell me.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s5">
+  <div class="box">&#10003;</div>
+  <div class="step-body">
+    <div class="step-title">Tap the mode button back and forth a few times</div>
+    <div class="step-note">Normal speed, then fast.</div>
+    <div class="expect"><b>Should happen:</b> the circle wipe looks the same as it always did. No flicker of the wrong background at the end, no flash of the Homestead screen.</div>
+  </div>
+</div>
+
+<div class="step" data-id="s6">
+  <div class="box">&#10003;</div>
+  <div class="step-body">
+    <div class="step-title">From phone mode, open your cards or a chat, then back out</div>
+    <div class="expect"><b>Should happen:</b> the cards sit on a solid dark background while they&rsquo;re open, and when you back out the photo is behind everything again.</div>
+  </div>
+</div>
+
+<h2>Over the next few days</h2>
+
+<div class="step" data-id="s7">
+  <div class="box">&#10003;</div>
+  <div class="step-body">
+    <div class="step-title">Just use it &mdash; and tell me if the black background ever comes back</div>
+    <div class="step-note">I was never able to make this bug happen on demand, so real use is the only honest test.</div>
+    <div class="expect"><b>If it never comes back:</b> that&rsquo;s the proof. If it does come back, say so &mdash; the app now keeps a record of what actually went wrong, so this time I&rsquo;ll be able to see it instead of guessing.</div>
+  </div>
+</div>
+
+<p class="saved-note">Your place is saved automatically.</p>
+
+<button class="reset" id="reset">Start over</button>
+
+<script>
+
+(function () {
+  var KEY = 'wallpaper-redraw-test-v1';
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var fill = document.getElementById('fill');
+  var label = document.getElementById('label');
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function save(state) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function paint() {
+    var state = load();
+    var done = 0;
+    steps.forEach(function (el) {
+      var on = !!state[el.dataset.id];
+      el.classList.toggle('done', on);
+      if (on) done++;
+    });
+    fill.style.width = (done / steps.length * 100) + '%';
+    label.textContent = done + ' of ' + steps.length + ' done'
+      + (done === steps.length ? ' — all clear' : '');
+  }
+
+  steps.forEach(function (el) {
+    el.addEventListener('click', function () {
+      var state = load();
+      var id = el.dataset.id;
+      if (state[id]) delete state[id]; else state[id] = 1;
+      save(state);
+      paint();
+      try { localStorage.setItem(KEY + ':scroll', String(window.scrollY)); } catch (e) {}
+    });
+  });
+
+  document.getElementById('reset').addEventListener('click', function () {
+    try { localStorage.removeItem(KEY); localStorage.removeItem(KEY + ':scroll'); } catch (e) {}
+    paint();
+    window.scrollTo(0, 0);
+  });
+
+  window.addEventListener('scroll', function () {
+    try { localStorage.setItem(KEY + ':scroll', String(window.scrollY)); } catch (e) {}
+  }, { passive: true });
+
+  paint();
+  try {
+    var y = parseInt(localStorage.getItem(KEY + ':scroll') || '0', 10);
+    if (y > 0) window.scrollTo(0, y);
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

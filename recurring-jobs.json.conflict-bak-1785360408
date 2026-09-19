@@ -1,0 +1,273 @@
+{
+  "jobs": [
+    {
+      "id": "memory-harvester",
+      "type": "memory-harvester",
+      "cron": "*/30 * * * *",
+      "config": {
+        "minutes": 30
+      },
+      "enabled": true,
+      "created_at": "2026-02-04T06:52:04.940Z"
+    },
+    {
+      "id": "memory-consolidator",
+      "type": "memory-consolidator",
+      "cron": "0 6 * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-02-04T13:05:00.000Z"
+    },
+    {
+      "id": "ephemeral-cleanup",
+      "type": "ephemeral-cleanup",
+      "cron": "*/10 * * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-02-11T13:20:00.000Z"
+    },
+    {
+      "id": "memory-commit",
+      "type": "memory-commit",
+      "cron": "0 */6 * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-02-15T19:32:00.000Z"
+    },
+    {
+      "id": "steward-commit",
+      "type": "steward-commit",
+      "cron": "0 * * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-02-23T22:30:00.000Z"
+    },
+    {
+      "id": "system-health-check",
+      "type": "script",
+      "cron": "7-59/15 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/run-health-checks.sh"
+      },
+      "enabled": true,
+      "created_at": "2026-03-06T01:59:04.661Z"
+    },
+    {
+      "id": "location-reminder-check",
+      "type": "location-reminder",
+      "cron": "* * * * *",
+      "config": {},
+      "enabled": true,
+<<<<<<< Updated upstream
+      "created_at": "2026-03-22T04:23:00.000Z"
+=======
+      "created_at": "2026-03-22T04:23:00.000Z",
+      "last_run": "2026-05-18T21:42:00.003Z",
+      "run_count": 47730,
+      "consecutive_failures": 0,
+      "last_success_at": "2026-05-18T21:42:00.003Z",
+      "last_error_text": null,
+      "failing_since": null,
+      "backstop_fired_at": null
+>>>>>>> Stashed changes
+    },
+    {
+      "id": "notification-check",
+      "type": "notification-check",
+      "cron": "*/5 * * * *",
+      "config": {},
+      "enabled": true,
+<<<<<<< Updated upstream
+      "created_at": "2026-03-23T12:30:00.000Z"
+=======
+      "created_at": "2026-03-23T12:30:00.000Z",
+      "last_run": "2026-05-18T21:25:00.333Z",
+      "run_count": 9536,
+      "consecutive_failures": 0,
+      "last_success_at": "2026-05-18T21:25:01.575Z",
+      "last_error_text": null,
+      "failing_since": null,
+      "backstop_fired_at": null
+    },
+    {
+      "id": "session-stuck-check",
+      "type": "session-stuck",
+      "cron": "* * * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-03-24T12:45:00.000Z",
+      "last_run": "2026-05-18T21:42:00.005Z",
+      "run_count": 44721,
+      "consecutive_failures": 0,
+      "last_success_at": "2026-05-18T21:42:00.255Z",
+      "last_error_text": null,
+      "failing_since": null,
+      "backstop_fired_at": null
+>>>>>>> Stashed changes
+    },
+    {
+      "id": "check-idle-stewards",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-idle-stewards.js"
+      },
+<<<<<<< Updated upstream
+      "enabled": false,
+      "created_at": "2026-05-04T17:30:00.000Z"
+=======
+      "enabled": true,
+      "created_at": "2026-05-04T17:30:00.000Z",
+      "last_run": "2026-05-18T21:42:00.257Z",
+      "run_count": 11599,
+      "consecutive_failures": 0,
+      "last_success_at": "2026-05-18T21:42:00.297Z",
+      "last_error_text": null,
+      "failing_since": null,
+      "backstop_fired_at": null
+>>>>>>> Stashed changes
+    },
+    {
+      "id": "watchdog-health",
+      "type": "script",
+      "cron": "*/2 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-watchdog-health.sh"
+      },
+      "enabled": true,
+<<<<<<< Updated upstream
+      "created_at": "2026-04-23T17:45:00.000Z"
+=======
+      "created_at": "2026-04-23T17:45:00.000Z",
+      "last_run": "2026-05-18T21:42:00.263Z",
+      "run_count": 9529,
+      "consecutive_failures": 0,
+      "last_success_at": "2026-05-18T21:42:00.278Z",
+      "last_error_text": null,
+      "failing_since": null,
+      "backstop_fired_at": null
+>>>>>>> Stashed changes
+    },
+    {
+      "id": "rooster-vitals-threshold-check",
+      "type": "script",
+      "cron": "*/2 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/scripts/threshold-check.sh"
+      },
+      "enabled": false,
+      "created_at": "2026-04-25T00:20:00.000Z"
+    },
+    {
+      "id": "rooster-claude-code-release-watch",
+      "type": "script",
+      "cron": "0 14 */2 * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/scripts/claude-code-release-watch.sh"
+      },
+      "enabled": true,
+      "created_at": "2026-04-25T14:30:00.000Z"
+    },
+    {
+      "id": "rooster-sleep-idle-stewards",
+      "type": "script",
+      "cron": "*/5 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/scripts/sleep-idle-stewards.sh"
+      },
+      "enabled": false,
+      "created_at": "2026-04-26T22:55:00.000Z"
+    },
+    {
+      "id": "rooster-watchdog-classifier",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/substewards/foreman/substewards/watchdog/pane-classifier/watchdog-classifier.py"
+      },
+      "enabled": true,
+<<<<<<< Updated upstream
+      "created_at": "2026-05-05T13:00:00.000Z"
+    },
+    {
+      "id": "rooster-auditor-inbox-consumer",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/lib/consume-auditor-inbox.js"
+      },
+      "enabled": true,
+      "created_at": "2026-06-05T17:30:00.000Z"
+    },
+    {
+      "id": "rooster-sms-alerter",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/substewards/foreman/substewards/watchdog/sms-alerter.py"
+      },
+      "enabled": true,
+      "created_at": "2026-06-22T16:10:00.000Z"
+    },
+    {
+      "id": "rooster-verify-sleep-threshold",
+      "type": "script",
+      "cron": "*/30 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/.homestead/stewards/rooster/scripts/verify-sleep-threshold.sh"
+      },
+      "enabled": false,
+      "created_at": "2026-06-29T20:08:00.000Z",
+      "_note": "Temporary verifier for the 1800->14400 sleep-threshold fix (2026-06-29). Walkies holler-rooster with PASS/STILL-WAITING/FAIL/BROKEN. Rooster disables this once PASS is confirmed on a real firing. | DISABLED 2026-06-29 after PASS confirmed (2 real sleeps, idle>=4h). Verifier purpose fulfilled; safe to delete this entry + the script later."
+    },
+    {
+      "id": "steward-resurrect",
+      "type": "steward-resurrect",
+      "cron": "*/5 * * * *",
+      "config": {},
+      "enabled": true,
+      "created_at": "2026-07-11T00:00:00.000Z",
+      "_note": "Reactivated 2026-07-11 (was removed 2026-03-24). Revives fully-gone steward/substeward/guest tmux sessions so mid-session crashes auto-recover without a reboot. 5min cadence matches rooster-sleep-idle-stewards. A 90s grace-window absence-ledger in executeStewardResurrect gates revival to prevent tmux-hammering a persistent-crash session."
+    },
+    {
+      "id": "check-context-pressure-stewards",
+      "type": "script",
+      "cron": "*/5 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-context-pressure-stewards.js"
+      },
+      "enabled": true,
+      "created_at": "2026-07-17T23:35:00.000Z"
+    },
+    {
+      "id": "check-compute-suspend-stewards",
+      "type": "script",
+      "cron": "* * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-compute-suspend-stewards.js"
+      },
+      "enabled": true,
+      "created_at": "2026-07-18T14:54:00.000Z"
+    },
+    {
+      "id": "check-stalled-workers",
+      "type": "script",
+      "cron": "*/5 * * * *",
+      "config": {
+        "script": "<<REPLACE: your home dir, e.g. /Users/you>>/code/homestead/lib/check-stalled-workers.js"
+      },
+      "enabled": true,
+      "created_at": "2026-07-18T15:00:00.000Z"
+=======
+      "created_at": "2026-05-05T13:00:00.000Z",
+      "run_count": 11145,
+      "consecutive_failures": 0,
+      "last_error_text": null,
+      "failing_since": null,
+      "last_success_at": "2026-05-18T21:42:05.283Z",
+      "backstop_fired_at": null,
+      "last_run": "2026-05-18T21:42:00.260Z"
+>>>>>>> Stashed changes
+    }
+  ]
+}

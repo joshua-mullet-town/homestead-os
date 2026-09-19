@@ -1,0 +1,91 @@
+node_modules/
+# Explicit guard — auto_save committed this 124MB binary on 2026-05-21 despite
+# node_modules/ being ignored (file became tracked at 45c2cdc7a, after which
+# .gitignore no longer applied). History scrubbed + force-pushed 2026-05-25.
+node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node
+.next/
+.turbo/
+dist/
+build/
+*.log
+.env
+.env.local
+.DS_Store
+.sessions/
+.env.secrets
+tsconfig.tsbuildinfo
+.homestead.pid
+homestead-config.json
+alerts/
+steward/
+.claude/SUMMARY.txt
+mobile/.gradle/
+
+# Firebase service account key - NEVER commit
+firebase-service-account.json
+
+# Per-worktree symlink created by the substeward spawn script
+# (~/.homestead/stewards/*/substewards/*/scripts/spawn-substeward.sh).
+# Each worktree gets its own env.sh pointing at its own substeward dir;
+# tracking one in main causes future worktrees to inherit a stale target.
+env.sh
+
+# Per-worktree runtime artifact recording the detected dev-server port.
+# No code reads it; it's a scratch note, same ephemeral class as env.sh.
+.dev-server-port
+
+# Runtime/ephemeral state — written continuously by the platform, not source.
+# Auto-save daemon was committing these directly to main, poisoning merge bases
+# (lesson-113 violation flagged by Homestead Auditor 2026-05-20).
+data/presenter-history/
+data/job-logs/
+data/*-state.json
+data/presenter-queue.json
+data/presenter-drafts.json
+data/harvester-status.json
+data/steward-bookmarks.json
+# Auditor triage extension 2026-05-20 (plan node /1/29/27) — runtime files
+# that don't carry "-state" in the name so the glob above misses them.
+data/channel-health.json
+data/watcher-reports.json
+data/triage-resolve-stash.json
+mobile/.kotlin/
+
+# Ad-hoc backup/proof copies of source files (e.g. lib/_queue-dispatcher-OLD.js
+# used for an OLD-vs-NEW baseline proof 2026-07-29). The auto-save daemon commits
+# anything in the tree; these underscore-prefixed sidecar copies must never ship
+# in tracked source. Keep proof copies in the scratchpad dir, not lib/.
+lib/_*.js
+*.bak
+public/proof/
+
+# Per-worker charter — must never be tracked on main (leaks into new worktrees)
+KICKOFF.md
+
+# Per-worker steward config (session_name/branch/objective) — same class as
+# KICKOFF.md. The auto-save daemon committed one to main 2026-08-16; ignore so
+# it never leaks into main or new worktrees.
+steward.json
+.shots/
+
+# QA checklist test fixtures — uploaded at runtime by stewards, served to Josh.
+# Runtime data, not source; must not bloat the repo.
+public/qa-files/
+
+# Worker creed, injected at spawn into each worktree. NEVER commit it: it holds
+# machine-local absolute paths into ~/.homestead steward dirs. On 2026-09-06 the
+# creed block lived in the tracked CLAUDE.md and an unattended autosaver
+# (`git add -A`, ~8min cadence) published a dead absolute path to origin/main
+# and to a remote branch on another repo. CLAUDE.local.md is a native Claude Code
+# load path, so the creed still reaches the session — it just never reaches git.
+CLAUDE.local.md
+
+# Real SMS/message archives — personal data, never commit (2026-09-17)
+data/message-history/
+
+# TLS certs/keys — never commit (2026-09-17)
+*.pem
+
+# Leftover from a git history rewrite — never commit
+.git-rewrite/
+.proof-time-pill/

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Health readout — proposal</title>
+<style>
+  :root{
+    --bg:#2b2a26; --panel:#3a3833; --ink:#efe7d6; --faint:#a39b8a;
+    --line:#4d4a43; --gold:#e0b64a; --sage:#8fbf7f; --red:#e06a5a; --amber:#e09a3a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Georgia,serif;
+    padding:20px 16px 60px;-webkit-text-size-adjust:100%}
+  .wrap{max-width:560px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px;letter-spacing:.2px}
+  .sub{color:var(--faint);font-size:14px;margin:0 0 26px}
+  h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+     margin:32px 0 10px;font-weight:600}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+     padding:16px 18px;margin:0 0 14px}
+  .pill{display:inline-flex;align-items:center;gap:10px;background:#161512;
+     border:1px solid #4d4a43;border-radius:16px;padding:7px 16px;font-size:15px}
+  .pill b{font-weight:600}
+  .row{display:flex;justify-content:space-between;align-items:baseline;
+     padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);gap:14px}
+  .row:last-child{border-bottom:0}
+  .lbl{color:var(--faint);font-size:13px;letter-spacing:.08em;text-transform:uppercase;flex:0 0 auto}
+  .val{text-align:right;font-size:15px}
+  .note{color:var(--faint);font-size:13px;font-style:italic;margin-top:5px;text-align:right}
+  .sage{color:var(--sage)} .gold{color:var(--gold)} .red{color:var(--red)} .amber{color:var(--amber)}
+  .bad{opacity:.62}
+  .bad .val{color:var(--faint)}
+  .x{color:var(--red);font-weight:700;margin-right:7px}
+  .ck{color:var(--sage);font-weight:700;margin-right:7px}
+  .why{background:rgba(224,182,74,.08);border-left:3px solid var(--gold);
+     border-radius:0 10px 10px 0;padding:12px 15px;margin:12px 0 0;font-size:14px;color:#ddd4c0}
+  .why b{color:var(--gold)}
+  ul{margin:8px 0 0;padding-left:20px}li{margin:6px 0;font-size:14px;color:#ddd4c0}
+  .foot{margin-top:34px;color:var(--faint);font-size:13px;text-align:center;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Your health readout — what I'd change</h1>
+  <p class="sub">The counts are already fixed and live. This is about making the rest readable.</p>
+
+  <h2>The strip at the top — now</h2>
+  <div class="card bad">
+    <span class="pill"><b class="gold">45%</b> · <span>C:21 MCP:140</span></span>
+    <div class="note">"45% of what? What's C?"</div>
+  </div>
+
+  <h2>The strip at the top — proposed</h2>
+  <div class="card">
+    <span class="pill"><b class="amber">BUSY</b> · <span>21 sessions</span></span>
+    <div class="note">One word for how hard it's working, and the number that means something to you.</div>
+  </div>
+  <div class="why">
+    <b>Why a word, not a percent:</b> the percent was never the useful part — you only
+    ever want to know <i>is my machine OK right now.</i> So it says that directly:
+    <span class="sage">EASY</span> · <span class="amber">BUSY</span> · <span class="red">SLAMMED</span>.
+  </div>
+
+  <h2>Tap it open — now</h2>
+  <div class="card bad">
+    <div class="row"><span class="lbl">CPU</span><span class="val">45%</span></div>
+    <div class="row"><span class="lbl">Load</span><span class="val">6.96 · 6.03 · 4.86</span></div>
+    <div class="row"><span class="lbl">RAM</span><span class="val">15.8GB / 16.0GB</span></div>
+    <div class="row"><span class="lbl">Claude</span><span class="val">21 · 3.0GB</span></div>
+    <div class="row"><span class="lbl">MCP</span><span class="val">140 · 3.2GB</span></div>
+    <div class="row"><span class="lbl">Orphans</span><span class="val">0 · 0MB</span></div>
+    <div class="row"><span class="lbl">Total</span><span class="val">6.2GB</span></div>
+    <div class="note">Seven rows, three of them unreadable.</div>
+  </div>
+
+  <h2>Tap it open — proposed</h2>
+  <div class="card">
+    <div class="row">
+      <span class="lbl">Right now</span>
+      <span class="val"><span class="amber">Busy — 7 of 8 engines going</span></span>
+    </div>
+    <div class="row">
+      <span class="lbl">Memory</span>
+      <span class="val"><span class="red">Tight — overflowing to disk</span></span>
+    </div>
+    <div class="row">
+      <span class="lbl">Sessions</span>
+      <span class="val">21 running · using 3.0GB</span>
+    </div>
+    <div class="row">
+      <span class="lbl">Helpers</span>
+      <span class="val">140 running · using 3.2GB</span>
+    </div>
+    <div class="row">
+      <span class="lbl">Left behind</span>
+      <span class="val"><span class="sage">None</span></span>
+    </div>
+    <div class="note">Five rows. Every one answers a question you'd actually ask.</div>
+  </div>
+
+  <h2>The three fixes inside that</h2>
+  <div class="card">
+    <div style="margin-bottom:14px">
+      <div><span class="x">✕</span><b>Load 6.96 · 6.03 · 4.86</b></div>
+      <div><span class="ck">✓</span><b>7 of 8 engines going</b></div>
+      <ul><li>Your machine has 8 engines. That line was always a count of how many
+      are in use — it just never said so. Three numbers became one, in English.</li></ul>
+    </div>
+    <div style="margin-bottom:14px">
+      <div><span class="x">✕</span><b>RAM 15.8GB / 16.0GB</b></div>
+      <div><span class="ck">✓</span><b>Tight — overflowing to disk</b></div>
+      <ul><li>"Almost 16 of 16" looks like a five-alarm fire but is normal — the machine
+      always fills unused memory with scratch it can throw away instantly.
+      <b>The honest alarm is different, and right now it's real:</b> you're 8.4GB deep
+      into overflow-to-disk. That's the thing that actually makes it feel slow, and
+      today it's genuinely bad — so the new version says so plainly instead of
+      crying wolf every single day.</li></ul>
+    </div>
+    <div>
+      <div><span class="x">✕</span><b>Claude 21 / MCP 140 / Orphans / Total</b></div>
+      <div><span class="ck">✓</span><b>Sessions / Helpers / Left behind</b></div>
+      <ul><li>Same numbers, words you'd actually say. "Total" is dropped — it was
+      just the other rows added up.</li></ul>
+    </div>
+  </div>
+
+  <h2>One more thing</h2>
+  <div class="card">
+    <div style="font-size:14px;color:#ddd4c0">
+      The panel currently opens <b>on top of the card you're reading</b> (you can see it
+      covering your text in the screenshot). I'd have it push down from the strip instead,
+      so it never hides what you're in the middle of.
+    </div>
+  </div>
+
+  <p class="foot">
+    Say go and I'll build it.<br>
+    Prefer different words than EASY / BUSY / SLAMMED? Tell me and I'll use yours.
+  </p>
+
+</div>
+</body>
+</html>

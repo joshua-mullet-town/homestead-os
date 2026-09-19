@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Active-Steward Emphasis — 8 Options (Gruvbox)</title>
+<style>
+  /* ---- Gruvbox Dark Medium palette (pulled from the real presenter style.css) ---- */
+  :root{
+    --iowa-bg:#282828; --iowa-panel:#3C3836; --iowa-panel-alt:#504945;
+    --iowa-active-bg:#32302F; --iowa-border:#504945; --iowa-border-soft:#3C3836;
+    --iowa-text:#EBDBB2; --iowa-text-soft:#BDAE93; --iowa-text-faint:#A89984;
+    --iowa-accent:#FE8019; --iowa-accent-hover:#D65D0E;
+    --iowa-gold:#FABD2F; --iowa-gold-dark:#D79921;
+    --iowa-sage:#B8BB26; --iowa-sage-dark:#98971A;
+    --iowa-slate:#83A598; --iowa-red:#FB4934;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--iowa-bg);color:var(--iowa-text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .page{max-width:760px;margin:0 auto;padding:20px 14px 80px;}
+  h1{font-size:19px;margin:0 0 4px;color:var(--iowa-text);}
+  .sub{font-size:13px;line-height:1.5;color:var(--iowa-text-soft);margin:0 0 22px;}
+  .sub b{color:var(--iowa-gold);}
+  .legend{background:var(--iowa-panel);border:1px solid var(--iowa-border);border-radius:10px;
+    padding:12px 14px;font-size:12.5px;line-height:1.55;color:var(--iowa-text-soft);margin-bottom:26px;}
+  .legend b{color:var(--iowa-text);}
+  .opt{margin-bottom:30px;border:1px solid var(--iowa-border-soft);border-radius:12px;overflow:hidden;
+    background:#2f2b2a;}
+  .opt-head{padding:11px 14px 9px;}
+  .opt-num{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;
+    color:var(--iowa-bg);background:var(--iowa-gold);border-radius:5px;padding:2px 8px;margin-right:9px;}
+  .opt-name{font-size:15px;font-weight:700;color:var(--iowa-text);}
+  .opt-desc{font-size:12.5px;line-height:1.5;color:var(--iowa-text-soft);padding:0 14px 12px;}
+
+  /* ---- The real strip (mirrors #embedded-topbar) ---- */
+  .strip{
+    display:flex;align-items:center;gap:4px;
+    background:var(--iowa-panel);border-top:1px solid #333;
+    padding:9px 8px;overflow-x:auto;
+  }
+  .strip::-webkit-scrollbar{display:none;}
+  /* .topbar-icon */
+  .ti{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    width:42px;height:42px;flex-shrink:0;border-radius:8px;
+    border-bottom:3px solid transparent;transition:all .12s;
+  }
+  .emoji{font-size:28px;line-height:1;position:relative;z-index:2;}
+  /* status dot bottom-right */
+  .status{position:absolute;bottom:2px;right:2px;width:9px;height:9px;border-radius:50%;
+    border:1.5px solid #111;z-index:3;}
+  .status.green{background:#00ff66;}
+  .status.amber{background:#ffcc00;}
+  /* badge top-right (gold, dark text) */
+  .badge{position:absolute;top:0;right:-2px;min-width:16px;height:16px;padding:0 4px;
+    border-radius:7px;background:var(--iowa-gold);color:var(--iowa-bg);
+    font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    z-index:4;border:1.5px solid var(--iowa-panel);}
+
+  /* ---- Recency ring (KEEP EXCITING — untouched glow) ---- */
+  .ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    pointer-events:none;z-index:0;overflow:visible;}
+  .tick{stroke:#fff;stroke-width:1.3;stroke-linecap:round;}
+  .tick.lit{opacity:.95;} .tick.unlit{opacity:.16;}
+
+  /* ========================================================================
+     THE 8 SELECTED-STATE TREATMENTS — each applied to .ti.sel in that strip
+     ======================================================================== */
+
+  /* current (for the "before" reference strip) */
+  .cur .ti.sel{border-bottom-color:var(--iowa-gold);background:rgba(254,128,25,.10);}
+
+  /* ★ YOUR PICK — OPT1 unpressed buttons + OPT3 orange fill, pressed-IN hard.
+     Every icon is a raised/unpressed button; the selected one is orange-filled
+     AND visibly depressed with a strong inset shadow. */
+  .pick .ti{
+    background:linear-gradient(#45403d,#38332f);border-bottom:none;
+    border:1px solid #57504a;
+    box-shadow:0 2px 0 #211f1d, 0 3px 4px rgba(0,0,0,.35);
+  }
+  .pick .ti.sel{
+    background:linear-gradient(#e0700f,#c25e08);   /* orange, slightly darker at base */
+    border-color:#a34e05;
+    transform:translateY(2px);
+    box-shadow:
+      inset 0 4px 7px rgba(0,0,0,.55),            /* deep top inset = pressed in */
+      inset 0 1px 0 rgba(0,0,0,.35),
+      inset 0 -2px 2px rgba(255,255,255,.10),      /* faint bottom lip */
+      0 0 0 1px #8f4404;
+  }
+  .pick .ti.sel .badge{background:var(--iowa-bg);color:var(--iowa-gold);border-color:#a34e05;}
+  .pick .ti.sel .status{border-color:#7a3a03;}
+
+  /* 1 — PRESSED-IN BUTTON. All icons look like raised buttons; selected sinks in. */
+  .o1 .ti{background:linear-gradient(#45403d,#38332f);
+    box-shadow:0 2px 0 #211f1d, 0 3px 4px rgba(0,0,0,.35);border-bottom:none;
+    border:1px solid #524b45;}
+  .o1 .ti.sel{background:linear-gradient(#2a2724,#332f2b);
+    box-shadow:inset 0 3px 6px rgba(0,0,0,.6), inset 0 1px 0 rgba(0,0,0,.4);
+    border-color:var(--iowa-accent);transform:translateY(2px);}
+
+  /* 2 — RAISED CARD LIFT. Selected pops UP off the bar with a real drop shadow + scale. */
+  .o2 .ti.sel{background:var(--iowa-panel-alt);border-bottom:none;
+    transform:translateY(-4px) scale(1.12);
+    box-shadow:0 6px 14px rgba(0,0,0,.55), 0 0 0 1px var(--iowa-border);
+    z-index:5;}
+
+  /* 3 — FILLED TILE (accent background). Solid orange chip behind the emoji. */
+  .o3 .ti.sel{background:var(--iowa-accent);border-bottom:none;border-radius:9px;
+    box-shadow:0 2px 8px rgba(254,128,25,.4);}
+  .o3 .ti.sel .badge{background:var(--iowa-bg);color:var(--iowa-gold);border-color:var(--iowa-accent);}
+
+  /* 4 — BLUE GLOW OUTLINE (hue distinct from the yellow ring). Cool halo can't be confused w/ ring. */
+  .o4 .ti.sel{border-bottom:none;border-radius:9px;
+    box-shadow:0 0 0 2px var(--iowa-slate), 0 0 12px 2px rgba(131,165,152,.75);
+    background:rgba(131,165,152,.12);}
+
+  /* 5 — BRACKET FRAME (corner brackets, like a camera focus reticle). */
+  .o5 .ti.sel{border-bottom:none;}
+  .o5 .ti.sel::before{content:"";position:absolute;width:12px;height:12px;
+    border:2.5px solid var(--iowa-accent);z-index:6;top:-3px;left:-3px;
+    border-right:none;border-bottom:none;border-radius:4px 0 0 0;}
+  .o5 .ti.sel::after{content:"";position:absolute;width:12px;height:12px;
+    border:2.5px solid var(--iowa-accent);z-index:6;bottom:-3px;right:-3px;
+    border-left:none;border-top:none;border-radius:0 0 4px 0;}
+  .o5 .ti.sel .cnr-tr{position:absolute;width:12px;height:12px;
+    border:2.5px solid var(--iowa-accent);z-index:6;top:-3px;right:-3px;
+    border-left:none;border-bottom:none;border-radius:0 4px 0 0;}
+  .o5 .ti.sel .cnr-bl{position:absolute;width:12px;height:12px;
+    border:2.5px solid var(--iowa-accent);z-index:6;bottom:-3px;left:-3px;
+    border-right:none;border-top:none;border-radius:0 0 0 4px;}
+
+  /* 6 — TOP ACCENT BAR + LIFT. Thick bar ABOVE the icon (not the weak bottom border) + slight raise. */
+  .o6 .ti.sel{border-bottom:none;background:var(--iowa-active-bg);border-radius:0 0 8px 8px;
+    transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.4);}
+  .o6 .ti.sel::before{content:"";position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+    width:34px;height:4px;border-radius:3px;background:var(--iowa-accent);
+    box-shadow:0 0 8px rgba(254,128,25,.6);z-index:6;}
+
+  /* 7 — DIM THE REST. Selected stays full-strength; all UNselected icons fade back. */
+  .o7 .ti:not(.sel){opacity:.34;filter:saturate(.6);}
+  .o7 .ti.sel{background:var(--iowa-panel-alt);border-bottom:none;border-radius:9px;
+    box-shadow:0 0 0 1.5px var(--iowa-accent);transform:scale(1.08);}
+
+  /* 8 — OUTLINED PLATE. Selected on a rounded plate w/ inset accent outline + lift. */
+  .o8 .ti.sel{border-bottom:none;background:var(--iowa-panel-alt);
+    border-radius:11px;box-shadow:inset 0 0 0 2px var(--iowa-accent),0 3px 8px rgba(0,0,0,.4);
+    transform:scale(1.06);}
+
+  .foot{font-size:12px;color:var(--iowa-text-faint);text-align:center;margin-top:30px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Active-Steward Emphasis — 8 Options</h1>
+  <p class="sub">Same bottom strip, real <b>Gruvbox</b> theme. In every row: one steward is <b>SELECTED</b> (🎩 Homestead) and one is <b>lit with a recency ring</b> (🪦 the bright glow) so you can judge — <b>does the selected one still win your eye against the ring?</b> The recency ring is untouched in all 8.</p>
+
+  <div class="legend">
+    <b>How to read each row:</b> 🎩 = the currently-selected steward (gets the new treatment). 🪦 = a steward lit up bright with the recency ring (your "Christmas tree"). The rest are normal. Pick the option where 🎩 obviously reads as "I'm here" without dimming the 🪦 glow.
+  </div>
+
+  <!-- ★ YOUR PICK -->
+  <div class="opt" style="border-color:var(--iowa-accent);box-shadow:0 0 0 1px var(--iowa-accent);">
+    <div class="opt-head"><span class="opt-num" style="background:var(--iowa-accent);color:#fff;">★ PICK</span><span class="opt-name">Unpressed buttons → selected = orange, pressed-IN</span></div>
+    <div class="opt-desc">Your blend: every steward is a <b>raised/unpressed button</b> (from OPT 1), and the one you're on is <b>orange-filled AND visibly pushed in</b> (deep inset shadow — much more "pressed" than OPT 3 was). The orange makes it unmissable; the inset makes it read as engaged. Ring untouched.</div>
+    <div class="strip pick" data-strip></div>
+  </div>
+
+  <!-- BEFORE -->
+  <div class="opt">
+    <div class="opt-head"><span class="opt-num" style="background:#665c54;color:#ebdbb2;">NOW</span><span class="opt-name">Current — faint orange bottom border</span></div>
+    <div class="opt-desc">What you have today. The 3px gold underline on 🎩 loses to the ring glow on 🪦 — exactly the problem.</div>
+    <div class="strip cur" data-strip></div>
+  </div>
+
+  <!-- 1 -->
+  <div class="opt">
+    <div class="opt-head"><span class="opt-num">OPT 1</span><span class="opt-name">Pressed-In Button</span></div>
+    <div class="opt-desc">Your idea. Every steward is a raised physical button; the selected one is <b>pushed in</b> (inset shadow + sinks 2px). Reads tactilely — "this one is depressed."</div>
+    <div class="strip o1" data-strip></div>
+  </div>
+
+  <!-- 2 -->
+  <div class="opt">
+    <div class="opt-head"><span class="opt-num">OPT 2</span><span class="opt-name">Raised Card Lift</span></div>
+    <div class="opt-desc">Opposite of #1: the selected icon <b>pops UP</b> off the bar — scaled 1.12× with a real drop shadow. It literally floats above the row.</div>
+    <div class="strip o2" data-strip></div>
+  </div>
+
+  <!-- 3 -->
+  <div class="opt">
+    <div class="opt-head"><span class="opt-num">OPT 3</span><span class="opt-name">Filled Orange Tile</span></div>
+    <div class="opt-desc">Solid Gruvbox-orange chip behind the selected emoji. Boldest color-block option — impossible to miss, but leans hard on the accent hue.</div>
+    <div class="strip o3" data-strip></div>
+  </div>
+
+  <!-- 4 -->
+  <div class="opt">
+    <div class="opt-head"><span class="opt-num">OPT 4</span><span class="opt-name">Blue Glow Outline</span></div>
+    <div class="opt-desc">A <b>cool-blue</b> glow ring around the selected icon. Deliberately a different hue from the yellow recency ring, so the two never get confused.</div>
+    <div class="strip o4" data-strip></div>
+  </div>
+
+  <!-- 5 -->
+  <div class="opt">
+    <div class="opt-head"><span class="opt-num">OPT 5</span><span class="opt-name">Corner Brackets</span></div>
+    <div class="opt-desc">Four orange corner brackets frame the selected icon like a camera focus reticle. Crisp "targeted" feel, very light footprint.</div>
+    <div class="strip o5" data-strip></div>
+  </div>
+
+  <!-- 6 -->
+  <div class="opt">
+    <div class="opt-head"><span class="opt-num">OPT 6</span><span class="opt-name">Top Accent Bar + Lift</span></div>
+    <div class="opt-desc">Moves the accent to the <b>top</b> (a thick glowing bar) and lifts the icon slightly. Same idea as today's underline but flipped up top where the eye lands + made bolder.</div>
+    <div class="strip o6" data-strip></div>
+  </div>
+
+  <!-- 7 -->
+  <div class="opt">
+    <div class="opt-head"><span class="opt-num">OPT 7</span><span class="opt-name">Spotlight (dim the rest)</span></div>
+    <div class="opt-desc">The selected icon stays full brightness; <b>every other icon fades back</b>. The ring still glows through the faded ones, but the selected one clearly owns the row.</div>
+    <div class="strip o7" data-strip></div>
+  </div>
+
+  <!-- 8 -->
+  <div class="opt">
+    <div class="opt-head"><span class="opt-num">OPT 8</span><span class="opt-name">Outlined Plate</span></div>
+    <div class="opt-desc">Selected sits on a rounded plate with a 2px inset orange outline + subtle lift. A "selected chip" — solid without going full color-block like #3.</div>
+    <div class="strip o8" data-strip></div>
+  </div>
+
+  <p class="foot">Rendered in the real Gruvbox Dark Medium palette + real strip geometry (42px icons, 28px emoji, live recency-ring SVG).<br>Reply with the option number — or a blend (e.g. "4's hue on 2's lift").</p>
+</div>
+
+<script>
+/* Build the recency-ring SVG the same way app.js does: 270° arc of ticks,
+   some lit, plus a radial glow circle. glow = brightness of that steward. */
+function ringSVG(litCount, glowR, glowOpacity){
+  const NS="http://www.w3.org/2000/svg";
+  const size=114, cx=57, cy=57, rTick=18.5, tickLen=3, total=12;
+  const svg=document.createElementNS(NS,"svg");
+  svg.setAttribute("class","ring");
+  svg.setAttribute("width",size);svg.setAttribute("height",size);
+  svg.setAttribute("viewBox","0 0 114 114");
+  const uid="_"+Math.floor(litCount*997+glowR*13+glowOpacity*100);
+  svg.innerHTML=`<defs>
+    <radialGradient id="rg${uid}">
+      <stop offset="0%" stop-color="rgba(255,255,255,${(glowOpacity*0.9).toFixed(3)})"></stop>
+      <stop offset="40%" stop-color="rgba(255,255,255,${(glowOpacity*0.6).toFixed(3)})"></stop>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
+    </radialGradient>
+    <filter id="rb${uid}" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="${(glowR/6).toFixed(2)}"></feGaussianBlur>
+    </filter>
+  </defs>
+  <circle cx="57" cy="57" r="${glowR}" fill="url(#rg${uid})" filter="url(#rb${uid})" opacity="${glowOpacity.toFixed(3)}"></circle>`;
+  const startDeg=0, sweepDeg=270;
+  for(let i=0;i<total;i++){
+    const frac=i/(total-1);
+    const ang=(startDeg+frac*sweepDeg)*Math.PI/180;
+    const x1=cx+Math.cos(ang)*rTick, y1=cy+Math.sin(ang)*rTick;
+    const x2=cx+Math.cos(ang)*(rTick+tickLen), y2=cy+Math.sin(ang)*(rTick+tickLen);
+    const ln=document.createElementNS(NS,"line");
+    ln.setAttribute("x1",x1.toFixed(2));ln.setAttribute("y1",y1.toFixed(2));
+    ln.setAttribute("x2",x2.toFixed(2));ln.setAttribute("y2",y2.toFixed(2));
+    ln.setAttribute("class","tick "+(i<litCount?"lit":"unlit"));
+    svg.appendChild(ln);
+  }
+  return svg.outerHTML;
+}
+
+const STEWARDS=[
+  {emoji:"🎩",status:"amber",badge:"13",sel:true,  ring:null},                 // Homestead — SELECTED
+  {emoji:"🪪",status:"green",badge:"7",              ring:null},
+  {emoji:"⚰️",status:"amber",badge:"12",             ring:{lit:4,r:26,o:.52}},
+  {emoji:"🍋",status:"green",                         ring:null},
+  {emoji:"🪦",status:"amber",badge:"9",              ring:{lit:9,r:36,o:.87}}, // BRIGHT ring
+  {emoji:"🛠️",status:"green",                         ring:null},
+  {emoji:"📮",status:"green",badge:"2",              ring:{lit:2,r:22,o:.32}},
+  {emoji:"🧭",status:"green",                         ring:null},
+  {emoji:"🐓",status:"amber",badge:"4",              ring:null},
+];
+
+function buildStrip(el){
+  STEWARDS.forEach(s=>{
+    const d=document.createElement("div");
+    d.className="ti"+(s.sel?" sel":"");
+    let inner="";
+    if(s.ring) inner+=ringSVG(s.ring.lit,s.ring.r,s.ring.o);
+    inner+=`<span class="emoji">${s.emoji}</span>`;
+    inner+=`<span class="status ${s.status}"></span>`;
+    if(s.badge) inner+=`<span class="badge">${s.badge}</span>`;
+    if(s.sel) inner+=`<span class="cnr-tr"></span><span class="cnr-bl"></span>`;
+    d.innerHTML=inner;
+    el.appendChild(d);
+  });
+}
+document.querySelectorAll("[data-strip]").forEach(buildStrip);
+</script>
+</body>
+</html>

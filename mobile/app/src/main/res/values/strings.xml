@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Homestead</string>
+    <string name="server_running">API Server Running</string>
+    <string name="server_stopped">API Server Stopped</string>
+    <string name="notification_channel_name">Homestead API Server</string>
+    <string name="notification_channel_description">Shows when the API server is running</string>
+    <string name="accessibility_service_description">Allows Claude to control your phone screen remotely via the Homestead API. This enables tapping, swiping, reading screen content, and navigating apps.</string>
+    <!-- Quick Settings tile that opens the floating recording controls. -->
+    <string name="tile_label">Start Recording</string>
+    <!-- Shown on the tile while a take is running, so a second tap reads as "stop". -->
+    <string name="tile_label_recording">Recording…</string>
+</resources>

@@ -1,0 +1,13 @@
+{
+  "name": "phone-alley",
+  "version": "0.1.0",
+  "description": "Phone Alley daemon — single public front door on :3009. Proxies to homestead (:3005) and legacy watchdog (:3007) while routes-core ports endpoints natively onto :3009.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^3.0.3"
+  }
+}

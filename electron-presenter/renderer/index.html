@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presenter</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="titlebar">
+    <div id="titlebar-drag">
+      <span id="titlebar-text">Presenter</span>
+      <span id="queue-count"></span>
+      <button id="btn-hood">Under the Hood</button>
+    </div>
+    <div id="titlebar-controls">
+      <label title="Opacity">&#x25D1;<input type="range" id="ctrl-opacity" min="20" max="100" value="92"></label>
+      <label title="Font size"><button class="ctrl-btn" id="ctrl-font-down">-</button><span class="ctrl-val" id="ctrl-font-val">14</span><button class="ctrl-btn" id="ctrl-font-up">+</button></label>
+    </div>
+    <button id="btn-minimize" title="Collapse to bar (`)">&#x2212;</button>
+  </div>
+
+  <!-- Inbox layout -->
+  <div id="inbox-container">
+    <!-- Left sidebar: steward list -->
+    <div id="sidebar">
+      <div id="sidebar-header">
+        <span>Inbox</span>
+      </div>
+      <div id="steward-list"></div>
+      <button id="sidebar-expand-btn">&#x25B8;</button>
+    </div>
+    <div id="sidebar-overlay"></div>
+
+    <!-- Right panel: conversation thread -->
+    <div id="conversation-panel">
+      <div id="conv-header">
+        <button id="sidebar-toggle" title="Open sidebar">☰</button>
+        <span id="conv-steward-icon"></span>
+        <span id="conv-steward-name">Select a steward</span>
+        <span id="conv-steward-status"></span>
+        <button id="stewint-open-btn" title="Open dashboard">☷</button>
+      </div>
+      <button id="embedded-view-pill">Bookmarks</button>
+      <div id="bookmarks-dropdown" style="display:none;"></div>
+      <button id="card-links-pill">Links</button>
+      <div id="card-links-dropdown" style="display:none;"></div>
+      <div id="conv-thread"></div>
+      <div id="conv-empty">
+        <div class="empty-icon">&#x2615;</div>
+        <div class="empty-text">Select a steward to view messages</div>
+      </div>
+      <!-- Composer panel: roomy textarea, toggled by the bottom-bar Type
+           button. Hidden by default; body.composer-open reveals it. Single
+           DOM, per-card draft TEXT swapped in/out on deck navigation. -->
+      <div id="conv-composer" hidden>
+        <button id="conv-composer-clear" type="button" title="Clear draft" aria-label="Clear draft">✕</button>
+        <textarea id="conv-bottom-textarea" placeholder="Type a message…" rows="4"></textarea>
+      </div>
+      <div id="conv-bottom-input" style="display:none;">
+        <button id="conv-bottom-send">➤</button>
+      </div>
+    </div>
+
+    <!-- Drag handle for resizing stewint panel -->
+    <div id="stewint-drag-handle" style="display:none;"></div>
+
+    <!-- Right panel: StewInt dashboard -->
+    <div id="stewint-panel" style="display:none;">
+      <div id="stewint-header">
+        <div id="stewint-tabs">
+          <button class="stewint-tab active" data-tab="stewint">StewInt</button>
+          <button class="stewint-tab" data-tab="metadata">Metadata</button>
+        </div>
+        <button id="stewint-toggle" title="Close panel">✕</button>
+      </div>
+      <iframe id="stewint-iframe" frameborder="0" style="flex:1;width:100%;border:none;background:#111;"></iframe>
+      <div id="stewint-content" style="display:none;"></div>
+    </div>
+  </div>
+
+  <iframe id="hood-iframe" src=""></iframe>
+  <button id="embedded-refresh-btn" title="Refresh">&#x21BB;</button>
+  <div id="undo-toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

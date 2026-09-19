@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Test: the typing box clears on send</title>
+<style>
+  :root{
+    --bg:#1d2021; --panel:#282828; --panel2:#32302f; --line:#3c3836;
+    --ink:#fbf1c7; --dim:#a89984; --accent:#b8bb26; --warn:#fabd2f; --bad:#fb4934;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#fbf1c7; --panel:#f2e5bc; --panel2:#ebdbb2; --line:#d5c4a1;
+           --ink:#3c3836; --dim:#665c54; --accent:#79740e; --warn:#b57614; --bad:#9d0006; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:20px 16px calc(40px + env(safe-area-inset-bottom,0px));
+    -webkit-text-size-adjust:100%;}
+  .wrap{max-width:680px;margin:0 auto}
+  h1{font-size:23px;margin:0 0 4px;line-height:1.25}
+  .sub{color:var(--dim);font-size:14px;margin:0 0 18px}
+  .bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:14px 0 6px}
+  .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+  .count{font-size:13px;color:var(--dim);margin-bottom:20px}
+  .step{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line);
+    border-radius:10px;padding:14px 15px;margin:0 0 12px;transition:border-color .18s,opacity .18s}
+  .step.done{border-left-color:var(--accent);opacity:.62}
+  .head{display:flex;gap:12px;align-items:flex-start;cursor:pointer;
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+  .box{flex:0 0 auto;width:26px;height:26px;border-radius:7px;border:2px solid var(--line);
+    background:var(--panel2);display:grid;place-items:center;font-size:15px;font-weight:700;
+    color:transparent;margin-top:1px}
+  .step.done .box{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+  .t{font-weight:650;font-size:16px}
+  .step.done .t{text-decoration:line-through;text-decoration-color:var(--dim)}
+  .body{margin:10px 0 0 38px;font-size:15px;color:var(--ink)}
+  .body p{margin:0 0 8px}
+  .expect{background:var(--panel2);border-radius:8px;padding:10px 12px;margin-top:8px;
+    font-size:14px;border-left:3px solid var(--accent)}
+  .expect b{color:var(--accent)}
+  .expect.keep{border-left-color:var(--warn)} .expect.keep b{color:var(--warn)}
+  .note{font-size:13px;color:var(--dim);margin-top:8px}
+  .cta{display:block;text-align:center;background:var(--accent);color:var(--bg);
+    font-weight:700;text-decoration:none;padding:15px;border-radius:11px;margin:8px 0 22px;font-size:16px}
+  .reset{display:block;width:100%;margin-top:26px;background:transparent;color:var(--dim);
+    border:1px solid var(--line);border-radius:9px;padding:11px;font-size:14px;cursor:pointer}
+  .done-all{background:var(--accent);color:var(--bg);border-radius:11px;padding:15px;
+    text-align:center;font-weight:700;margin:6px 0 16px;display:none}
+  .done-all.show{display:block}
+  .saved{font-size:12px;color:var(--dim);text-align:center;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Does the typing box clear now?</h1>
+  <p class="sub">Four quick checks. Your place is saved automatically — close this and come back on any device, it reopens exactly where you left off.</p>
+
+  <a class="cta" href="http://joshuas-macbook-air.tail84bb3b.ts.net:3005/presenter/index.html">Open Homestead to test in →</a>
+
+  <div class="bar"><i id="fill"></i></div>
+  <p class="count" id="count"></p>
+
+  <div class="done-all" id="allDone">All four checks passed 🎉</div>
+
+  <div class="step" data-k="s1">
+    <div class="head"><div class="box">✓</div><div class="t">1. Send with the arrow button</div></div>
+    <div class="body">
+      <p>Tap <b>TYPE</b>, type anything into the phone's keyboard box, then send it with the <b>arrow</b>.</p>
+      <div class="expect"><b>Should happen:</b> the message sends, and the typing box is <b>empty</b> — you don't have to wipe it.</div>
+    </div>
+  </div>
+
+  <div class="step" data-k="s2">
+    <div class="head"><div class="box">✓</div><div class="t">2. Send with the card number button</div></div>
+    <div class="body">
+      <p>Same thing, but send it using the <b>number</b> button instead of the arrow.</p>
+      <div class="expect"><b>Should happen:</b> sends, and the box is <b>empty</b> again.</div>
+    </div>
+  </div>
+
+  <div class="step" data-k="s3">
+    <div class="head"><div class="box">✓</div><div class="t">3. Your words don't get destroyed</div></div>
+    <div class="body">
+      <p>Type something but <b>don't</b> send it — no card open, or just hit send with the box empty.</p>
+      <div class="expect keep"><b>Should happen:</b> whatever you typed is <b>still there</b>. Nothing gets wiped unless a message actually goes out.</div>
+      <p class="note">This is the one that matters most — losing your words would be worse than the original bug.</p>
+    </div>
+  </div>
+
+  <div class="step" data-k="s4">
+    <div class="head"><div class="box">✓</div><div class="t">4. Voice recording still wins</div></div>
+    <div class="body">
+      <p>Leave some text in the box, then hold the mic and record a voice message and send that.</p>
+      <div class="expect keep"><b>Should happen:</b> the voice message sends, and your typed text is <b>left alone</b>.</div>
+    </div>
+  </div>
+
+  <button class="reset" id="reset">Start the checklist over</button>
+  <p class="saved" id="saved"></p>
+</div>
+
+<script>
+(function(){
+  var KEY='homestead.typingBoxClear.test.v1';
+  var steps=[].slice.call(document.querySelectorAll('.step'));
+  var fill=document.getElementById('fill'), count=document.getElementById('count'),
+      allDone=document.getElementById('allDone'), saved=document.getElementById('saved');
+
+  function read(){
+    try{ return JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ return {}; }
+  }
+  function write(s){
+    try{ localStorage.setItem(KEY, JSON.stringify(s)); stamp(); }catch(e){}
+  }
+  function stamp(){
+    try{ saved.textContent='Place saved '+new Date().toLocaleTimeString(); }catch(e){}
+  }
+  function paint(){
+    var s=read(), n=0;
+    steps.forEach(function(el){
+      var on=!!s[el.dataset.k];
+      el.classList.toggle('done',on);
+      if(on) n++;
+    });
+    fill.style.width=(n/steps.length*100)+'%';
+    count.textContent=n+' of '+steps.length+' checked';
+    allDone.classList.toggle('show', n===steps.length);
+    // Restore scroll position too, so his PLACE is genuinely kept.
+    return s;
+  }
+
+  steps.forEach(function(el){
+    el.querySelector('.head').addEventListener('click',function(){
+      var s=read();
+      s[el.dataset.k]=!s[el.dataset.k];
+      write(s); paint();
+    });
+  });
+
+  document.getElementById('reset').addEventListener('click',function(){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    try{ localStorage.removeItem(KEY+'.scroll'); }catch(e){}
+    paint(); window.scrollTo(0,0);
+  });
+
+  // Keep scroll position across visits.
+  var t=null;
+  window.addEventListener('scroll',function(){
+    clearTimeout(t);
+    t=setTimeout(function(){
+      try{ localStorage.setItem(KEY+'.scroll', String(window.scrollY)); }catch(e){}
+    },150);
+  },{passive:true});
+
+  paint();
+  if(read() && Object.keys(read()).length) stamp();
+  try{
+    var y=parseInt(localStorage.getItem(KEY+'.scroll')||'0',10);
+    if(y>0) window.scrollTo(0,y);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

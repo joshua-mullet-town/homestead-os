@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Old dashboard retired — test it</title>
+<style>
+  :root{
+    --bg:#faf6ee; --ink:#241f18; --muted:#6d6255; --line:#e0d7c6;
+    --card:#fffdf8; --accent:#b8860b; --ok:#3f7d3f; --shadow:0 1px 3px rgba(60,45,20,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#17140f; --ink:#f0e9dc; --muted:#a1968a; --line:#332c22;
+           --card:#201c15; --accent:#d9a520; --ok:#7fb069; --shadow:0 1px 3px rgba(0,0,0,.4); }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:17px/1.6 ui-serif,Georgia,"Times New Roman",serif;
+    padding:24px 20px calc(60px + env(safe-area-inset-bottom,0px));
+    -webkit-text-size-adjust:100%;}
+  .wrap{max-width:640px;margin:0 auto}
+  h1{font-size:27px;line-height:1.25;margin:0 0 6px}
+  .sub{color:var(--muted);margin:0 0 24px;font-size:15.5px}
+  .banner{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--ok);
+    border-radius:10px;padding:14px 16px;margin:0 0 26px;box-shadow:var(--shadow);font-size:16px}
+  h2{font-size:14px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+    margin:34px 0 12px;font-family:ui-sans-serif,system-ui,sans-serif;font-weight:700}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:15px 16px;margin-bottom:12px;box-shadow:var(--shadow);
+    display:flex;gap:13px;align-items:flex-start;cursor:pointer;
+    transition:border-color .15s, opacity .15s;
+    -webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;
+    -webkit-user-select:none;user-select:none;touch-action:manipulation;}
+  .step:hover{border-color:var(--accent)}
+  .step.done{opacity:.55;border-color:var(--ok)}
+  .step.done .what{text-decoration:line-through}
+  .box{flex:0 0 25px;height:25px;border:2px solid var(--line);border-radius:7px;
+    display:grid;place-items:center;font-size:15px;color:#fff;background:transparent;margin-top:1px}
+  .step.done .box{background:var(--ok);border-color:var(--ok)}
+  .body{flex:1;min-width:0}
+  .what{font-weight:600;display:block;margin-bottom:3px}
+  .why{color:var(--muted);font-size:15px}
+  a.btn{display:inline-block;margin-top:9px;background:var(--accent);color:#fff;
+    text-decoration:none;padding:9px 15px;border-radius:8px;font-size:15.5px;font-weight:600;
+    font-family:ui-sans-serif,system-ui,sans-serif}
+  .note{font-size:15px;color:var(--muted);border-top:1px solid var(--line);
+    margin-top:32px;padding-top:18px}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);
+    border-top:1px solid var(--line);padding:11px 20px calc(11px + env(safe-area-inset-bottom,0px));
+    font-size:14.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;
+    font-family:ui-sans-serif,system-ui,sans-serif}
+  .reset{background:none;border:1px solid var(--line);color:var(--muted);
+    border-radius:7px;padding:6px 11px;font-size:13.5px;cursor:pointer;font-family:inherit}
+  img{width:100%;border:1px solid var(--line);border-radius:10px;margin-top:10px;display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The old dashboard is retired</h1>
+  <p class="sub">Four quick taps to confirm nothing you use broke. Your place is saved automatically — close this and come back on any device.</p>
+
+  <div class="banner">
+    <strong>What changed:</strong> the old repos-and-branches screen is gone, along with four leftover test screens. Everything you actually use — the presenter, the guest pages, your status page, the sign-in rescue screens — is untouched. The old address now sends you to the presenter instead of a dead page.
+  </div>
+
+  <h2>Test it</h2>
+
+  <div class="step" data-id="s1">
+    <div class="box">✓</div>
+    <div class="body">
+      <span class="what">Open the old address</span>
+      <span class="why">It should land you on the presenter — your normal card view — not an error page.</span>
+      <a class="btn" href="http://joshuas-macbook-air.tail84bb3b.ts.net:3005/" target="_blank" rel="noopener">Open the old address</a>
+    </div>
+  </div>
+
+  <div class="step" data-id="s2">
+    <div class="body" style="flex:1">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="box">✓</div>
+        <div>
+          <span class="what">Check the presenter still works</span>
+          <span class="why">Cards show up, your steward icons are along the bottom, and sending still works. Here's what it looks like right now on a phone:</span>
+        </div>
+      </div>
+      <img src="presenter-after.png" alt="The presenter on a phone after the cleanup — a card is showing with the steward icons along the bottom">
+    </div>
+  </div>
+
+  <div class="step" data-id="s3">
+    <div class="box">✓</div>
+    <div class="body">
+      <span class="what">Tap the "Web" button in your phone app</span>
+      <span class="why">In the presenter, open Settings and tap "Switch to web view." It used to land on the screen I deleted. Now it opens the presenter in your browser instead. No app update needed — it just works.</span>
+    </div>
+  </div>
+
+  <div class="step" data-id="s4">
+    <div class="box">✓</div>
+    <div class="body">
+      <span class="what">Check your status page</span>
+      <span class="why">It still works, and its broken "Remote" button — which pointed at a screen deleted before I started — is gone.</span>
+      <a class="btn" href="http://joshuas-macbook-air.tail84bb3b.ts.net:3005/status" target="_blank" rel="noopener">Open the status page</a>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>What I checked so you don't have to:</strong> all 101 behind-the-scenes services still answer, the guest pages Jory and <<REPLACE: a household member>> use still load, the sign-in rescue screens still work, and sending a card through the presenter still goes through. I also found and fixed a mistake of my own along the way — my first version of the redirect pointed at a page that didn't exist, which I caught by actually opening it rather than trusting the code.
+  </div>
+
+</div>
+
+<div class="bar">
+  <span id="count">0 of 4 checked</span>
+  <button class="reset" id="reset">Reset</button>
+</div>
+
+<script>
+(function(){
+  var KEY='retire-interface1-2026-09-03';
+  var steps=[].slice.call(document.querySelectorAll('.step'));
+  var state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+
+  function save(){
+    try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){}
+  }
+  function count(){
+    var n=steps.filter(function(s){return state[s.dataset.id];}).length;
+    document.getElementById('count').textContent=n+' of '+steps.length+' checked';
+  }
+  function paint(){
+    steps.forEach(function(s){ s.classList.toggle('done', !!state[s.dataset.id]); });
+    count();
+  }
+  steps.forEach(function(s){
+    s.addEventListener('click',function(e){
+      if(e.target.tagName==='A') return;      // let the links through
+      state[s.dataset.id]=!state[s.dataset.id];
+      save(); paint();
+    });
+  });
+  document.getElementById('reset').addEventListener('click',function(){
+    state={}; save(); paint();
+    try{ localStorage.removeItem(KEY+'-scroll'); }catch(e){}
+    window.scrollTo(0,0);
+  });
+
+  // Keep his scroll position too, so returning reopens exactly where he was.
+  try{
+    var y=parseInt(localStorage.getItem(KEY+'-scroll')||'0',10);
+    if(y>0) window.scrollTo(0,y);
+  }catch(e){}
+  var t=null;
+  window.addEventListener('scroll',function(){
+    if(t) clearTimeout(t);
+    t=setTimeout(function(){
+      try{ localStorage.setItem(KEY+'-scroll',String(window.scrollY)); }catch(e){}
+    },200);
+  },{passive:true});
+
+  paint();
+})();
+</script>
+</body>
+</html>

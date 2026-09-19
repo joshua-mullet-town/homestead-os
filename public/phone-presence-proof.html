@@ -1,0 +1,54 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Phone presence proof</title>
+<style>
+ body{margin:0;background:#0d0b08;color:#e8dcc0;font-family:Georgia,serif;padding:40px}
+ h1{font-size:28px;letter-spacing:.02em;margin:0 0 6px}
+ .sub{color:#8a7f66;font-size:16px;margin-bottom:34px}
+ .row{display:flex;gap:34px;align-items:stretch}
+ .col{flex:1}
+ .tag{font-size:15px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px;font-family:system-ui}
+ .bad{color:#b4614f}.good{color:#6f9f5c}
+ .card{background:linear-gradient(#1a1712,#141109);border:1px solid #3a3227;border-radius:10px;padding:22px 24px;box-shadow:0 10px 30px #0008}
+ .hdr{font-size:14px;letter-spacing:.14em;color:#c9b98f;font-family:system-ui;margin-bottom:18px}
+ .plate{display:flex;align-items:baseline;gap:14px;border-radius:7px;padding:14px 18px;margin-bottom:16px}
+ .p-unk{background:#161310;border:1px solid #3a3227}
+ .p-off{background:linear-gradient(#3a1410,#24100c);border:1px solid #7d3226;box-shadow:0 0 22px #7d322644}
+ .big{font-size:30px;font-weight:700;font-family:system-ui}
+ .p-unk .big{color:#9a8f76}.p-off .big{color:#e2593f}
+ .small{font-size:14px;letter-spacing:.1em;font-family:system-ui}
+ .p-unk .small{color:#7d7360}.p-off .small{color:#c98a76}
+ .line{font-size:19px;margin-bottom:12px}
+ .detail{border-left:3px solid #3a3227;padding-left:14px;color:#a89c82;font-size:16px;line-height:1.5}
+ .verdict{margin-top:34px;font-size:19px;text-align:center;color:#c9b98f}
+ .hl{color:#6f9f5c;font-weight:700}
+ .hl2{color:#b4614f;font-weight:700}
+ @media (max-width:820px){
+   body{padding:20px 16px}
+   h1{font-size:23px;line-height:1.25}
+   .sub{font-size:15px;margin-bottom:24px}
+   .row{flex-direction:column;gap:24px}
+   .big{font-size:26px}
+   .line{font-size:18px}
+   .detail{font-size:15px}
+   .verdict{font-size:17px;margin-top:26px}
+ }
+</style></head><body>
+<h1>The dashboard was telling you that you'd left the house.</h1>
+<div class="sub">Same phone, same spot on your counter, same Wi-Fi &mdash; before and after the fix.</div>
+<div class="row">
+  <div class="col"><div class="tag bad">&#9654; Before</div>
+    <div class="card"><div class="hdr">PHONE WIRELESS DEBUGGING</div>
+      <div class="plate p-unk"><span class="big">UNKNOWN</span><span class="small">CAN'T TELL FROM HERE</span></div>
+      <div class="line">Can't tell &mdash; your phone isn't on the home network.</div>
+      <div class="detail">Your phone is not answering on the home network, so there is no way to tell whether wireless debugging is switched off or the phone is simply somewhere else.</div>
+    </div>
+  </div>
+  <div class="col"><div class="tag good">&#9654; After</div>
+    <div class="card"><div class="hdr">PHONE WIRELESS DEBUGGING</div>
+      <div class="plate p-off"><span class="big">OFF</span><span class="small">NOT WORKING RIGHT NOW</span></div>
+      <div class="line">Wireless debugging on your phone is switched off.</div>
+      <div class="detail">Your phone <b style="color:#cdbd92">is on the home network</b> &mdash; the Homestead app on it answered &mdash; but it is not announcing itself for debugging.</div>
+    </div>
+  </div>
+</div>
+<div class="verdict">It stopped <span class="hl2">guessing you were gone</span> and started <span class="hl">telling you the real problem</span>.</div>
+</body></html>

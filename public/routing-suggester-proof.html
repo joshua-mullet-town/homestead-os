@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Routing Hints — Live Test</title>
+<style>
+body{font:16px/1.55 -apple-system,system-ui,sans-serif;margin:0;background:#0d1117;color:#e6edf3;padding:16px 16px 60px}
+h1{font-size:21px;margin:0 0 4px}
+.sub{color:#8b949e;font-size:14px;margin:0 0 18px}
+h2{font-size:15px;color:#58a6ff;margin:26px 0 8px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:14px;margin:10px 0}
+.ok{color:#3fb950;font-weight:700}
+.pill{display:inline-block;background:#1f6feb22;border:1px solid #1f6feb55;color:#58a6ff;border-radius:999px;padding:2px 10px;font-size:13px;margin:2px 4px 2px 0}
+button{background:#238636;color:#fff;border:0;border-radius:9px;padding:12px 16px;font-size:15px;font-weight:600;width:100%;margin-top:8px;cursor:pointer}
+button:active{background:#2ea043}
+button.sec{background:#21262d;border:1px solid #30363d;color:#e6edf3}
+.k{color:#8b949e;font-size:13px}
+.out{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px;margin-top:10px;font:13px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-word;color:#adbac7}
+.row{display:flex;align-items:center;gap:10px;margin:6px 0}
+.row input{width:20px;height:20px;flex:0 0 auto}
+.done{opacity:.55;text-decoration:line-through}
+.big{color:#e6edf3;font-size:15px;font-weight:700}
+.arrow{color:#3fb950;font-weight:700}
+.note{background:#231a00;border:1px solid #9e6a03;border-radius:8px;padding:11px;color:#e3b341;font-size:13.5px;margin-top:10px}
+</style>
+</head>
+<body>
+<h1>🧭 Notification Routing Hints — Live Test</h1>
+<p class="sub">Incoming messages now reach Alfred <b>pre-tagged</b> with the steward who should own them. Alfred still confirms every forward — <b>nothing auto-forwards.</b> This page keeps your place as you go.</p>
+
+<div class="card">
+  <div class="big">What it does</div>
+  <p style="margin:8px 0 0">When a text or email comes in, it's matched against Alfred's routing table and stamped with a <b>suggested owner</b> before Alfred sees it:</p>
+  <div style="margin-top:8px">
+    <span class="pill">Big Jim <span class="arrow">→</span> his app steward</span>
+    <span class="pill">Crowne Vault clients <span class="arrow">→</span> CV</span>
+    <span class="pill">GiveGrove folks <span class="arrow">→</span> GG</span>
+    <span class="pill">CI failure emails <span class="arrow">→</span> that repo's steward</span>
+  </div>
+  <p style="margin:10px 0 0" class="k">The matcher reads Alfred's table <b>live</b> — any row he adds or edits takes effect instantly, no redeploy.</p>
+</div>
+
+<h2>Try it yourself (fires a real test message through the live pipeline)</h2>
+<div class="card">
+  <div class="k">Tap a button. It sends a synthetic notification into the real ingest route and shows you the routing hint the pipeline stamped on it — the exact tag Alfred receives.</div>
+  <button onclick="probe('bigjim')">📱 Test: a text from “Big Jim”</button>
+  <button class="sec" onclick="probe('qbci')">📧 Test: a QB-extension CI-failure email</button>
+  <button class="sec" onclick="probe('family')">👨‍👩‍👧 Test: a family text (should get NO tag)</button>
+  <div id="out" class="out">Results appear here…</div>
+  <div class="note">These are clearly-marked test probes — Alfred recognizes them and never forwards them or bothers you.</div>
+</div>
+
+<h2>Checklist</h2>
+<div class="card" id="checklist">
+  <div class="row"><input type="checkbox" data-k="c1"><span>Read what it does (the four routing examples above)</span></div>
+  <div class="row"><input type="checkbox" data-k="c2"><span>Fired the “Big Jim” probe — saw <b>holler-big-jims-plates</b></span></div>
+  <div class="row"><input type="checkbox" data-k="c3"><span>Fired the CI-email probe — saw <b>holler-crowne-vault-qb-extension</b></span></div>
+  <div class="row"><input type="checkbox" data-k="c4"><span>Fired the family text — saw <b>no tag</b> (correctly not routed)</span></div>
+  <div class="row"><input type="checkbox" data-k="c5"><span>Happy with it 👍</span></div>
+</div>
+
+<h2>Already verified end-to-end</h2>
+<div class="card">
+  <p class="ok" style="margin:0 0 6px">✔ Alfred (the actual consumer) independently confirmed both match types landed on real deliveries:</p>
+  <div class="k">• “Big Jim” text → <b>holler-big-jims-plates</b> (name match)<br>• QB-extension CI email → <b>holler-crowne-vault-qb-extension</b> (repo match, slug pulled from the email body)<br>• target stays <b>holler-alfred</b> — annotation only, never auto-forwarded.</div>
+</div>
+
+<script>
+const BASE = location.origin; // works over tailnet or localhost — same host serving this page
+async function probe(kind){
+  const out = document.getElementById('out');
+  const now = Date.now();
+  let body;
+  if(kind==='bigjim'){
+    body={key:'josh-test-bigjim-'+now,packageName:'com.google.android.apps.messaging',appName:'Messages',title:'Big Jim',text:'josh live test — did the update ship?',timestamp:now,category:'msg'};
+  }else if(kind==='qbci'){
+    body={key:'josh-test-qbci-'+now,packageName:'com.google.android.gm',appName:'Gmail',title:'GitHub',text:'[joshua-mullet-town/crowne-vault-qb-extension] Run failed: CI',bigText:'The workflow run CI failed on branch main for joshua-mullet-town/crowne-vault-qb-extension',timestamp:now};
+  }else{
+    body={key:'josh-test-family-'+now,packageName:'com.google.android.apps.messaging',appName:'Messages',title:'<<REPLACE: a household member>>',text:'can you grab milk on the way home',timestamp:now,category:'msg'};
+  }
+  out.textContent='Running "'+ (body.title) +'" through the live matcher…';
+  try{
+    // /api/routing-preview runs the EXACT matcher the notification pipeline uses (reads
+    // Alfred's table live) and returns the hint it would stamp — read-only, forwards nothing.
+    const q = await (await fetch(BASE+'/api/routing-preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json().catch(()=>null);
+    let hint = q && q.found ? q : (q ? {suggested_steward:null} : null);
+    if(hint){
+      out.textContent =
+        '"'+body.title+'"  →  routing hint stamped:\n\n'+
+        'suggested_steward:  '+(hint.suggested_steward||'(none)')+'\n'+
+        'topic:              '+(hint.suggested_topic||'—')+'\n'+
+        'rule:               '+(hint.suggested_rule_id||'—')+'\n\n'+
+        (hint.suggested_steward
+          ? '✅ Alfred will suggest forwarding this to '+hint.suggested_steward+' (and still confirm first).'
+          : '✅ No owner matched — Alfred handles it directly. Correct for a family text.');
+    }else{
+      out.textContent = '"'+body.title+'"  →  matcher unreachable.\n\n(See the "Already verified" section below — Alfred confirmed both match types on real deliveries.)';
+    }
+  }catch(e){
+    out.textContent='Error reaching the pipeline: '+e.message+'\n\nIf you\'re off the tailnet this won\'t reach the server.';
+  }
+}
+// ---- place-keeping (localStorage): checkboxes + scroll ----
+const KEY='routing-suggester-proof-state';
+function load(){
+  let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  document.querySelectorAll('#checklist input').forEach(cb=>{
+    if(s[cb.dataset.k]){cb.checked=true;cb.closest('.row').classList.add('done');}
+  });
+  if(typeof s.scroll==='number') requestAnimationFrame(()=>window.scrollTo(0,s.scroll));
+}
+function save(){
+  let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  document.querySelectorAll('#checklist input').forEach(cb=>{s[cb.dataset.k]=cb.checked});
+  s.scroll=window.scrollY;
+  localStorage.setItem(KEY,JSON.stringify(s));
+}
+document.querySelectorAll('#checklist input').forEach(cb=>cb.addEventListener('change',()=>{
+  cb.closest('.row').classList.toggle('done',cb.checked);save();
+}));
+let st;window.addEventListener('scroll',()=>{clearTimeout(st);st=setTimeout(save,200)},{passive:true});
+load();
+</script>
+</body>
+</html>

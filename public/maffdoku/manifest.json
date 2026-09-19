@@ -1,0 +1,10 @@
+{
+  "name": "MaffDoku",
+  "short_name": "MaffDoku",
+  "start_url": "/maffdoku/",
+  "display": "standalone",
+  "background_color": "#1d2021",
+  "theme_color": "#1d2021",
+  "description": "Math Sudoku — place 1-9 using sum and product clues",
+  "icons": []
+}

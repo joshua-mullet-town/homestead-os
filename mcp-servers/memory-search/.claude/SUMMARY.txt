@@ -1,0 +1,6 @@
+```json
+{
+  "user_summary": "Memory harvester recursive invocation metadata",
+  "agent_summary": "Identified previous harvester run, no new work"
+}
+```

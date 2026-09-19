@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone Mode — The New Screen</title>
+<style>
+  :root{ --bg:#0d0d0d; --card:#161616; --line:#2a2a2a; --ink:#f2f2f2; --dim:#9a9a9a; --accent:#FF6600; }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:22px 16px 60px;max-width:900px;margin-inline:auto;
+  }
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--dim);margin:0 0 26px}
+  h2{font-size:18px;margin:34px 0 10px}
+  .shots{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:0 0 8px}
+  figure{margin:0;flex:1 1 260px;max-width:320px}
+  img{width:100%;border-radius:14px;border:1px solid var(--line);display:block}
+  figcaption{color:var(--dim);font-size:13px;text-align:center;margin-top:8px}
+  ul{padding-left:20px;margin:0}
+  li{margin-bottom:9px}
+  b{color:#fff}
+  .note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px;color:var(--dim);font-size:14.5px;margin-top:12px}
+  .cta{background:rgba(255,102,0,.1);border:1px solid var(--accent);border-radius:12px;padding:15px 17px;margin:26px 0 0}
+  .cta b{color:var(--accent)}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<h1>Phone Mode — the new screen</h1>
+<p class="sub">This is a preview of the design. Tap UPDATE in the app to get it on your phone.</p>
+
+<div class="shots">
+  <figure>
+    <img src="/proofs/phone-mode-clock-dark.png" alt="Phone mode over a dark wallpaper">
+    <figcaption>Over a dark wallpaper</figcaption>
+  </figure>
+  <figure>
+    <img src="/proofs/phone-mode-clock-light.png" alt="Phone mode over a light wallpaper">
+    <figcaption>Over a light wallpaper — the clock flips itself dark automatically</figcaption>
+  </figure>
+</div>
+
+<div class="note">
+  The wallpapers here are stand-ins so you can see how it holds up on both a dark
+  and a light background. On your phone it's <b>your</b> wallpaper behind it.
+</div>
+
+<h2>The clock and date</h2>
+<ul>
+  <li><b>Hours stacked over minutes</b>, oversized and pushed to the left edge. The
+      off-center placement is what keeps it from looking like stock Android.</li>
+  <li><b>It reads your wallpaper and adapts.</b> Light wallpaper, it switches to dark
+      lettering on its own — that's the second picture above. You don't set anything.</li>
+  <li><b>It stays readable over a photo.</b> Every letter gets a soft outline, so it
+      doesn't disappear into a busy background the way plain white text does.</li>
+  <li>Uses the app's own typeface rather than the generic Android one, and the digits
+      are locked to equal width so the clock doesn't twitch sideways when the minute changes.</li>
+  <li><b>Tap the time to open your clock app. Tap the date to open your calendar</b> on today.</li>
+  <li>The date now shows the whole bit — weekday, month name, day, year, and underneath
+      the month/day numbers plus the week of the year.</li>
+</ul>
+
+<h2>The bottom tray</h2>
+<ul>
+  <li>A fixed dock along the bottom for your special apps — the ones you always want in
+      thumb reach, like camera, messages and maps.</li>
+  <li>It starts off with sensible picks. <b>To add one:</b> swipe up for the full list,
+      press and hold any app, choose "Add to bottom tray". <b>To remove one:</b> press
+      and hold it in the tray.</li>
+  <li>Unlike the main grid, the tray never re-sorts itself — what you put there stays put.</li>
+</ul>
+
+<h2>Your background</h2>
+<ul>
+  <li>It's your <b>real system wallpaper</b> — whatever you've set on your phone shows through.</li>
+  <li><b>Press and hold anywhere empty</b> on the screen to jump straight to the wallpaper
+      picker and change it, exactly like a normal Android home screen.</li>
+</ul>
+
+<h2>Your apps</h2>
+<ul>
+  <li><b>Your pinned favorites come first</b>, in the order you pinned them — they're never
+      dropped or reshuffled.</li>
+  <li>After those, it fills the remaining spots with what you're <b>most likely to open right
+      now</b>, which shifts by time of day.</li>
+  <li><b>Press and hold an icon for a menu</b> — Move, add or remove from favorites,
+      add to the bottom tray, or app info. Same menu you get in the full app list.</li>
+  <li><b>To rearrange:</b> hold an icon, choose Move, then tap the spot you want it to go.
+      The icon you're moving dims so you can see which one is in flight. Tap empty space
+      to cancel. Once you arrange the screen by hand it stays that way.</li>
+  <li>The grid is five across now, so it holds ten apps.</li>
+  <li><b>Swipe up</b> for the full app list with search. That list is now just your apps
+      and the search box — the duplicate favorites row at the top is gone.</li>
+</ul>
+
+<h2>Switching modes</h2>
+<ul>
+  <li><b>The button now shows where it takes you</b> — a grid when you're in Homestead
+      (tap for the phone screen), a little house when you're in phone mode. It flips
+      over like a coin when you tap it.</li>
+  <li><b>The switch itself is a circle that opens and closes from the button</b> under your
+      thumb. Going to phone mode, Homestead shrinks away into the button and uncovers your
+      wallpaper. Coming back, it grows out of the button and covers it again.</li>
+  <li>It runs in about a third of a second — same speed as before, just no longer an
+      instant hard cut.</li>
+</ul>
+
+<div class="cta">
+  <b>To see it for real:</b> open Homestead and tap UPDATE, then tap the grid button
+  on the right edge. There's a short checklist at
+  <a href="/proofs/phone-mode-test.html">the test page</a> if you want to run through it.
+</div>
+
+</body>
+</html>

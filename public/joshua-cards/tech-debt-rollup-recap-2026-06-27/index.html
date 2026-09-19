@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GiveGrove Tech-Debt Rollup — Recap & Test Notes</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #181b22;
+    --card2: #1f232c;
+    --line: #2a2f3a;
+    --text: #e7ebf0;
+    --muted: #98a2b3;
+    --accent: #4ea1ff;
+    --green: #34c759;
+    --amber: #ffb020;
+    --pill-removal: #3a2f1a;
+    --pill-removal-text: #ffce6b;
+    --pill-change: #1a2f3a;
+    --pill-change-text: #7fc4ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 32px 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 28px; margin: 0 0 6px; letter-spacing: -0.3px; }
+  .sub { color: var(--muted); margin: 0 0 28px; font-size: 15px; }
+  .intro {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 28px;
+  }
+  .intro p { margin: 0 0 10px; }
+  .intro p:last-child { margin-bottom: 0; }
+  .intro strong { color: #fff; }
+  .item {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 20px 22px; margin-bottom: 18px;
+  }
+  .item h2 { font-size: 19px; margin: 0 0 4px; letter-spacing: -0.2px; }
+  .pr { color: var(--muted); font-size: 13px; }
+  .pr a { color: var(--accent); text-decoration: none; }
+  .pr a:hover { text-decoration: underline; }
+  .pills { margin: 12px 0 14px; }
+  .pill {
+    display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px;
+    border-radius: 999px; margin-right: 8px; letter-spacing: 0.2px;
+  }
+  .pill.removal { background: var(--pill-removal); color: var(--pill-removal-text); }
+  .pill.change  { background: var(--pill-change);  color: var(--pill-change-text); }
+  .pill.risk-low  { background: #14301c; color: #7ee29a; }
+  .pill.risk-med  { background: #2f2718; color: var(--amber); }
+  .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 14px 0 4px; font-weight: 700; }
+  .body p { margin: 0 0 10px; }
+  .test {
+    background: var(--card2); border-left: 3px solid var(--accent);
+    border-radius: 6px; padding: 12px 14px; margin-top: 6px;
+  }
+  .test.none { border-left-color: var(--muted); }
+  .test p { margin: 0; }
+  .test .muted { color: var(--muted); font-style: italic; }
+  code {
+    background: #0c0e12; border: 1px solid var(--line); border-radius: 5px;
+    padding: 1px 6px; font-size: 13.5px; color: #ffd9a0;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  }
+  a.btn {
+    display: inline-block; background: var(--accent); color: #04121f; font-weight: 600;
+    text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 14px; margin-top: 4px;
+  }
+  .footer { color: var(--muted); font-size: 13px; margin-top: 36px; text-align: center; }
+  hr { border: none; border-top: 1px solid var(--line); margin: 26px 0; }
+  .stakeholder-note {
+    background: #15211a; border: 1px solid #234a33; border-radius: 12px;
+    padding: 18px 20px; margin: 8px 0 28px;
+  }
+  .stakeholder-note h3 { margin: 0 0 8px; font-size: 16px; color: var(--green); }
+  .stakeholder-note p { margin: 0 0 8px; }
+  .stakeholder-note p:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>GiveGrove Tech-Debt Rollup</h1>
+  <p class="sub">Recap of all 7 cleanup items, what changed in the code, and what's worth a quick test. June 2026.</p>
+
+  <div class="intro">
+    <p>This was a batch of <strong>seven dependency / housekeeping items</strong> — the kind of stuff that accumulates and starts to slow things down or block future upgrades. Each one is its own pull request, so they can be reviewed and merged independently.</p>
+    <p>A note on testing: a few of these are <strong>pure removals</strong> — we deleted things that were already unused, so there's literally nothing new to click on. Others changed real behavior (a chart, the session-replay player) and are worth a look. Each item below is tagged so you know which is which.</p>
+    <p>Overall rule of thumb: <strong>if the lights are still on, it's working.</strong> The build passes and the app boots; the items below just call out the few spots where it's worth eyeballing the actual feature.</p>
+  </div>
+
+  <div class="stakeholder-note">
+    <h3>📋 For David — the short version</h3>
+    <p>Seven small PRs, mostly dependency cleanup. <strong>Three of them touch something a person can actually see</strong> and are worth a 2-minute look on Give Grove Mullet: the <strong>donut chart</strong> on the event dashboard, the <strong>session-replay video player</strong>, and a single <strong>event date label</strong>. The other four are invisible plumbing (Node version bump, a removed unused library, a removed unused polyfill, and a new build check in CI) — nothing to click, just confirm the app still loads and deploys.</p>
+    <p>Specific links and exactly-what-to-look-for are under each item.</p>
+  </div>
+
+  <!-- ITEM 1: Node 24 -->
+  <div class="item">
+    <h2>1. Upgrade to Node 24 LTS</h2>
+    <div class="pr">Main app: <a href="https://github.com/south-bend-code-works/GiveGrove/pull/1523" target="_blank">PR #1523</a> &nbsp;·&nbsp; Ticketing API: <a href="https://github.com/south-bend-code-works/ticketing-api/pull/72" target="_blank">PR #72</a></div>
+    <div class="pills">
+      <span class="pill change">Real change</span>
+      <span class="pill risk-med">Worth a look</span>
+    </div>
+    <div class="body">
+      <p class="label">What changed</p>
+      <p>Moved both codebases off Node 20 onto Node 24 (the current long-term-support version). This is the runtime everything builds and deploys on. It updated every deploy workflow, deleted some old custom Node-20 build-container scripts we no longer need, and refreshed the locked dependency versions.</p>
+      <p>One small piece of real code changed in the cloud functions: the "new user signup" handler was rewritten from the old Firebase function style to the newer one (<code>beforeUserCreated</code>), because the old style isn't supported the same way on the new runtime. Same behavior — copies a phone number into the new user's profile on signup.</p>
+      <p class="label">What to test</p>
+      <div class="test">
+        <p>Confirm the app still deploys cleanly and loads. Then, the one functional thing to spot-check: <strong>create a new account</strong> (especially a phone-number signup) and confirm the user gets set up normally. That's the only behavior that touched real code.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITEM 2: vite build CI gate -->
+  <div class="item">
+    <h2>2. Add a build check to CI</h2>
+    <div class="pr"><a href="https://github.com/south-bend-code-works/GiveGrove/pull/1542" target="_blank">PR #1542</a></div>
+    <div class="pills">
+      <span class="pill change">Real change (infra)</span>
+      <span class="pill risk-low">Nothing to click</span>
+    </div>
+    <div class="body">
+      <p class="label">What changed</p>
+      <p>Added an automatic "does it actually build?" check that runs on every pull request before it can be merged. We added this after a previous change froze the beta site for a week — a small type-annotation slip got merged because nothing was verifying the front-end could compile. Now it can't happen again: if the app doesn't build, the PR is blocked.</p>
+      <p class="label">What to test</p>
+      <div class="test none">
+        <p class="muted">Nothing to click in the app. This is a guardrail in our pull-request pipeline. You'll just notice that PRs now show a "Build Check (Vite)" step that has to pass.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITEM 3: vue/compat removal -->
+  <div class="item">
+    <h2>3. Remove unused <code>@vue/compat</code> library</h2>
+    <div class="pr"><a href="https://github.com/south-bend-code-works/GiveGrove/pull/1544" target="_blank">PR #1544</a></div>
+    <div class="pills">
+      <span class="pill removal">Pure removal</span>
+      <span class="pill risk-low">Nothing to click</span>
+    </div>
+    <div class="body">
+      <p class="label">What changed</p>
+      <p>Deleted a compatibility library that was left over from a past Vue 2 → Vue 3 migration. Nothing in the app actually imported it anymore — it was dead weight in the dependency list. One line removed from the project config.</p>
+      <p class="label">What to test</p>
+      <div class="test none">
+        <p class="muted">Nothing. It was unused, so removing it changes no behavior. If the app builds and loads, it's confirmed.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITEM 4: babel-polyfill removal -->
+  <div class="item">
+    <h2>4. Remove unused <code>babel-polyfill</code></h2>
+    <div class="pr"><a href="https://github.com/south-bend-code-works/GiveGrove/pull/1546" target="_blank">PR #1546</a></div>
+    <div class="pills">
+      <span class="pill removal">Pure removal</span>
+      <span class="pill risk-low">Nothing to click</span>
+    </div>
+    <div class="body">
+      <p class="label">What changed</p>
+      <p>Removed an old browser-compatibility shim (<code>babel-polyfill</code>) that's no longer needed — modern build tooling handles this automatically now. Deleted the dependency and the two leftover import lines in the app's startup file.</p>
+      <p class="label">What to test</p>
+      <div class="test none">
+        <p class="muted">Nothing specific. Same as above — it was redundant. App-loads = confirmed.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITEM 5: moment removal -->
+  <div class="item">
+    <h2>5. Remove the <code>moment</code> date library</h2>
+    <div class="pr"><a href="https://github.com/south-bend-code-works/GiveGrove/pull/1550" target="_blank">PR #1550</a></div>
+    <div class="pills">
+      <span class="pill change">Real change (tiny)</span>
+      <span class="pill risk-low">One thing to glance at</span>
+    </div>
+    <div class="body">
+      <p class="label">What changed</p>
+      <p>Removed <code>moment</code> — a big, old date-formatting library that the app barely used. It was only being used in <strong>one place</strong>: formatting the date shown on an event card (e.g. "June 19, 2026"). We replaced that single line with the browser's built-in date formatting, which produces the exact same output. The whole library is now gone.</p>
+      <p class="label">What to test</p>
+      <div class="test">
+        <p>Open an <strong>event card</strong> and confirm the date still reads like "<strong>June 19, 2026</strong>" — full month name, day, year. That's the only spot this touched.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITEM 6: chart.js -->
+  <div class="item">
+    <h2>6. Upgrade the chart library (chart.js v2 → v4)</h2>
+    <div class="pr"><a href="https://github.com/south-bend-code-works/GiveGrove/pull/1552" target="_blank">PR #1552</a></div>
+    <div class="pills">
+      <span class="pill change">Real change</span>
+      <span class="pill risk-med">Worth a look</span>
+    </div>
+    <div class="body">
+      <p class="label">What changed</p>
+      <p>Jumped the charting library forward by two major versions (it was years out of date). There's exactly <strong>one chart in the whole app</strong>: the <strong>donut chart on the event dashboard</strong> that breaks down totals by category. The new version changed how charts get configured, so we rewrote the chart's setup to match — legend, tooltips, sizing, and the dollar-formatting on hover were all carried over to produce an identical result.</p>
+      <p>We verified it pixel-for-pixel on Give Grove Mullet: same donut size (476×330), same slices, same legend, and hovering a slice still shows the dollar amount like "$51,205.00". <em>Bonus:</em> this upgrade also fully removed <code>moment</code> from the project — the old chart library was secretly dragging it back in.</p>
+      <p class="label">What to test</p>
+      <div class="test">
+        <p>Open an event's <strong>dashboard</strong> and confirm the <strong>donut chart</strong> looks right — correct slices, legend showing each category, and <strong>hover a slice</strong> to confirm the dollar tooltip shows up (e.g. "$51,205.00").</p>
+        <a class="btn" href="https://givegrove-mullet.web.app/are-we-backwards-compatible-tho/admin" target="_blank">Open a live dashboard with data →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITEM 7: rrweb -->
+  <div class="item">
+    <h2>7. Upgrade session-replay (rrweb)</h2>
+    <div class="pr"><a href="https://github.com/south-bend-code-works/GiveGrove/pull/1554" target="_blank">PR #1554</a></div>
+    <div class="pills">
+      <span class="pill change">Real change</span>
+      <span class="pill risk-med">Worth a look — the trickiest one</span>
+    </div>
+    <div class="body">
+      <p class="label">What changed</p>
+      <p>This is the "watch a recording of a user's session" feature in the super-admin area. It was running on a <em>preview</em> ("alpha") version of the underlying library, and the goal was to move it onto a proper stable release. No app code changed — it's purely a version bump of the session-replay packages.</p>
+      <p class="label">An honest caveat (important)</p>
+      <p>We discovered the only "stable" release of the <strong>video-player piece</strong> is itself broken — it literally can't play recordings. We confirmed this against the library directly, not just our app. So that one piece <strong>stayed on the known-good preview version</strong> you already had, while the rest of the session-replay machinery moved to stable. Net result: nothing about the feature changed for users — recordings record and play exactly as before — and we're now on the best combination available.</p>
+      <p class="label">What to test</p>
+      <div class="test">
+        <p>Go to the <strong>Session Recordings</strong> list, open one recording, and confirm two things: <strong>(1)</strong> the player loads (no "failed to initialize" error), and <strong>(2)</strong> when you hit play, you actually see the <strong>recorded page content</strong> — not just a moving cursor on a blank screen. Both of those were verified working live.</p>
+        <a class="btn" href="https://givegrove-mullet.web.app/_super_admin_/sessions" target="_blank">Open Session Recordings →</a>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="footer">
+    All 7 items are open PRs on the GiveGrove repo, ready for review and merge.<br>
+    Built from the actual code changes in each pull request · June 27, 2026
+  </div>
+
+</div>
+</body>
+</html>
